@@ -1,0 +1,13 @@
+.module-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.module-list button {
+  border-color: white;
+  border-radius: 2px;
+}
+
+.module-list button:hover {
+  border-color: #646cff;
+}

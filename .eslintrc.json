@@ -1,0 +1,71 @@
+{
+    "env": {
+      "root": true,
+      "browser": true,
+      "es2021": true
+    },
+    "extends": [
+        "plugin:react/recommended",
+        "airbnb"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "ecmaVersion": 13,
+        "sourceType": "module",
+        "project": "./tsconfig.json"
+    },
+    "plugins": [
+        "react",
+        "react-hooks",
+        "@typescript-eslint"
+    ],
+    "rules": {
+      "@typescript-eslint/consistent-type-imports": "error",
+      "lines-between-class-members": "off",
+      "@typescript-eslint/lines-between-class-members": [
+        "error",
+        {
+          "exceptAfterSingleLine": true
+        }
+      ],
+      "semi": "off",
+      "@typescript-eslint/semi": [
+        "error",
+        "always"
+      ],
+      "no-multi-spaces": [
+        "error",
+        {
+          "ignoreEOLComments": true,
+          "exceptions": {
+            "Property": true,
+            "VariableDeclarator": true,
+            "ImportDeclaration": true
+          }
+        }
+      ],
+      "indent": "off",
+      "@typescript-eslint/indent": [
+        "error",
+        2,
+        {
+          "SwitchCase": 1
+        }
+      ],
+      "max-len": [
+        "warn",
+        {
+          "code": 240,
+          "ignoreComments": true,
+          "ignoreTemplateLiterals": true
+        }
+      ],
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
+      "no-plusplus": "off",
+      "no-bitwise": "off"
+    }
+}
