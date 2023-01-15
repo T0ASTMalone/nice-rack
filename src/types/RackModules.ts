@@ -1,79 +1,90 @@
 import { RackNode } from './RackTypes';
 
 export class RackOscillatorNode extends RackNode {
-  readonly types: string[];
-
   constructor(context: AudioContext, opt?: OscillatorOptions) {
-    super(new OscillatorNode(context, opt), 'Oscillator');
-    this.types = ['square', 'sine', 'sawtooth'];
+    super(new OscillatorNode(context, opt), { 
+      name: 'Oscillator',
+      paramOptions: {
+        'type':  { values: ['square', 'sine', 'sawtooth'] },
+      }
+    });
   }
 }
 
 export class RackConvolverNode extends RackNode {
   constructor(context: AudioContext, opt?: ConvolverOptions) {
-    super(new ConvolverNode(context, opt), 'Convolver');
+    super(new ConvolverNode(context, opt), { name: 'Convolver'});
   }
 }
 
 export class RackBiquadFilterNode extends RackNode {
-  readonly types: string[];
-
   constructor(context: AudioContext, opt?: BiquadFilterOptions) {
-    super(new BiquadFilterNode(context, opt), 'Biquad Filter');
-    this.types = ['lowpass', 'highpass', 'bandpass']
+    super(new BiquadFilterNode(context, opt), { 
+      name: 'Biquad Filter',
+      paramOptions: {
+        'type': {
+          values: ['lowpass', 'highpass', 'bandpass']
+        }
+      }
+    });
   }
 }
 
 export class RackGainNode extends RackNode {
   constructor(context: AudioContext, opt?: GainOptions) {
-    super(new GainNode(context, opt), 'Gain');
+    super(new GainNode(context, opt), { 
+      name: 'Gain',
+      paramOptions: {
+        'gain': {  min: 0, max: 100 },
+      }
+    });
   }
 }
 
 export class RackDynamicsCompressorNode extends RackNode {
   constructor(context: AudioContext, opt?: DynamicsCompressorOptions) {
-    super(new DynamicsCompressorNode(context, opt), 'Dynamics Compressor');
+    super(new DynamicsCompressorNode(context, opt), { name: 'Dynamics Compressor'});
   }
 }
 
 export class RackPannerNode extends RackNode {
   constructor(context: AudioContext, opt?: PannerOptions) {
-    super(new PannerNode(context, opt), 'Panner Node');
+    super(new PannerNode(context, opt), { name: 'Panner Node'});
   }
 }
 
 export class RackSterioPannerNode extends RackNode {
   constructor(context: AudioContext, opt?: StereoPannerOptions) {
-    super(new StereoPannerNode(context, opt), 'Stereo Panner');
+    super(new StereoPannerNode(context, opt), { name: 'Stereo Panner'});
   }
 }
 
 export class RackAnalyzerNode extends RackNode {
   constructor(context: AudioContext, opt?: AnalyserOptions) {
-    super(new AnalyserNode(context, opt), 'Analyser');
+    super(new AnalyserNode(context, opt), { name: 'Analyser'});
   }
 }
 
 export class RackWaveShaperNode extends RackNode {
   constructor(context: AudioContext, opt?: WaveShaperOptions) {
-    super(new WaveShaperNode(context, opt), 'WaveShaper');
+    super(new WaveShaperNode(context, opt), { name: 'WaveShaper'});
   }
 }
 
 export class RackConstantSourceNode extends RackNode {
   constructor(context: AudioContext, opt?: ConstantSourceOptions) {
-    super(new ConstantSourceNode(context, opt), 'Constant Source');
+    super(new ConstantSourceNode(context, opt), { name: 'Constant Source'});
   }
 }
 
 export class RackDelayNode extends RackNode {
   constructor(context: AudioContext, opt?: DelayOptions) {
-    super(new DelayNode(context, opt), 'Delay');
+    super(new DelayNode(context, opt), { name: 'Delay' });
   }
 }
 
 export class RackChannelNode extends RackNode {
   constructor(context: AudioContext, opt?: ChannelMergerOptions){
-    super(new ChannelMergerNode(context, opt), 'Merger');
+    super(new ChannelMergerNode(context, opt), { name: 'Merger' });
   }
 }

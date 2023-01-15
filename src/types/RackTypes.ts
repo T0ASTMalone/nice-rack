@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid';
+import { RackGainNode } from './RackModules';
 
 class InputNode {
   node?: RackNode;
@@ -67,8 +68,25 @@ interface AudioNodeObject {
 
 interface RackAudioNode extends AudioNode {
   type?: string;
+  start?: (when?: number) => void;
+  stop?: (when?: number) => void;
 }
 
+export type ParamOptions = {
+  min?: number;
+  max?: number;
+  values?: string[];
+  type?: string;
+}
+
+interface RackNodeOptions {
+  name: string;
+  paramOptions?: {[key: string]: ParamOptions }
+}
+
+const smoothingInterval = 0.1;
+// TODO: update to keep track of started state
+// TODO: subscription to state that needs to be updated in ui (inputNodes/OutputNode, stated state)
 class RackNode {
   readonly id: string;
 
@@ -78,11 +96,21 @@ class RackNode {
 
   readonly params?: Map<string, AudioParam>;
 
+  readonly paramOptions?: {[key: string]: ParamOptions };
+
+  readonly outputNode: RackAudioNode;
+
+  readonly analyzer?: AnalyserNode;
+
+  started: boolean;
+
   inputNodes: Array<InputNode>;
 
   outPutNodes: Array<OutputNode>;
 
-  constructor(node: AudioNode, name: string) {
+
+
+  constructor(node: AudioNode, opt: RackNodeOptions) {
     this.id = uuid();
     this.node = node;
     this.params = new Map(
@@ -92,7 +120,29 @@ class RackNode {
     );
     this.inputNodes = [];
     this.outPutNodes = [];
-    this.name = name;
+    this.name = opt?.name;
+    this.paramOptions = opt?.paramOptions;
+    this.started = false;
+    
+    if (this.name) {
+      const analyzerNode = new AnalyserNode(this.node.context);
+      this.analyzer = analyzerNode;
+      this.node.connect(analyzerNode);
+    }
+    // if start 
+    if (this.node?.start) {
+      const gainNode = new GainNode(this.node.context, { gain: 0 });
+
+      this.node?.start?.();
+      this.node.connect(gainNode);
+
+      this.outputNode = gainNode;
+
+    } else {
+      this.outputNode = node;
+    }
+
+
   }
 
   set type(value: any) {
@@ -111,28 +161,62 @@ class RackNode {
   }
 
   #connect(output: OutputNode) {
-    console.log('#connect')
     if (!output.node) return;
-    console.log('#connect connecting')
     if (output.param) {
-      console.log('#connect connecting to param')
-      this.node.connect(output.param);
+      this.outputNode.connect(output.param);
     } else {
-      console.log('#connect connecting to node')
-      this.node.connect(output.node.node);
+      this.outputNode.connect(output.node.node);
     }
   }
 
   #disconnect(output: OutputNode) {
     if (!output.node) return;
     if (output.param) {
-      this.node.disconnect(output.param);
+      this.outputNode.disconnect(output.param);
     } else {
-      this.node.disconnect(output.node.node);
+      this.outputNode.disconnect(output.node.node);
+    }
+  }
+
+  start() {
+    if (this.node?.start) {
+      const now = this.node.context.currentTime;
+      console.log('[RackNodeh] now', now)
+      this.outputNode?.gain?.setValueAtTime?.(1, now, smoothingInterval);
+      console.log('[RackNodeh] now', this?.outputNode?.gain);
+      this.started = true;
+    }
+    return this.started;
+  }
+
+  stop() {
+    if (this.node?.stop) {
+      const now = this.node.context.currentTime;
+      console.log('[RackNodeh] now', now)
+      this.outputNode?.gain?.setValueAtTime?.(0, now, smoothingInterval);
+      console.log('[RackNodeh] now', this?.outputNode?.gain);
+      this.started = false;
+    }
+    return this.started;
+  }
+ /* cannot call start after stop
+  * either combine all nodes that can start and stop with gain nodes 
+  * and start means gain is set to 1
+  * and stop means gain is set to 0
+  */
+  toggleStarted() {
+    if (!this.node?.start || !this.node?.stop) return false;
+    console.log('[RackNode] toggleing started state: ', this.started);
+    if (this.started) {
+      return this.stop();
+    } else {
+      return this.start();
     }
   }
 
   createOutput(id: string, color: string, node?: RackNode, param?: string) {
+    console.log('[RacReducers] createOuput param', node?.params?.get(param ?? ''));
+    console.log('[RacReducers] createOuput param str', param);
     const output = new OutputNode(id, color, node, node?.params?.get(param ?? ''), param);
     this.#connect(output);
     this.outPutNodes.push(output);
@@ -140,6 +224,8 @@ class RackNode {
   }
 
   createInput(id: string, color: string, node?: RackNode, param?: string) {
+    console.log('[RacReducers] createInput param', node?.params?.get(param ?? ''));
+    console.log('[RacReducers] createInput param str', param);
     const input = new InputNode(id, color, node, node?.params?.get(param ?? ''), param);
     this.inputNodes.push(input);
     return input;

@@ -9,11 +9,13 @@ export enum Actions {
   UpdateParam,
   AddOutput,
   AddInput,
+  RemoveInput,
+  RemoveOutput,
 }
 
 export enum IO {
   Input = "Input",
-  Ouput = "Output",
+  Output = "Output",
 }
 
 export type TPatch = {

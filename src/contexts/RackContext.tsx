@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer } from 'react';
-import { Actions, RackAction, RackState, IO } from '../types/RackContextTypes';
-import { RackDestinationNode} from '../types/RackTypes';
-import { createPatch } from './RackContextReducers';
+import { Actions, RackAction, RackState } from '../types/RackContextTypes';
+import { RackDestinationNode } from '../types/RackTypes';
+import { createInput, createOutput, removeInput, removeOutput } from './RackContextReducers';
 
 
 const RackStateContext = createContext<RackState | undefined>(undefined);
@@ -34,9 +34,13 @@ const rackReducer = (state: RackState, action: RackAction): RackState => {
         modules: [...state.modules.filter((mod) => mod.id !== action.message.moduleId)],
       };
     case Actions.AddOutput:
-      return createPatch(action.message.outputId, IO.Ouput, state, action.message.param);
+      return {...createOutput(action.message.outputId, state, action.message.param)}
     case Actions.AddInput:
-      return createPatch(action.message.inputId, IO.Input, state, action.message.param);
+      return {...createInput(action.message.inputId, state, action.message.param)}
+    case Actions.RemoveOutput: 
+      return {...removeOutput(action.message.outputId, state, action.message.param)}
+    case Actions.RemoveInput: 
+      return {...removeInput(action.message.inputId, state, action.message.param)}
     default:
       break;
   }

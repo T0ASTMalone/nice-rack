@@ -1,9 +1,14 @@
-import { Play, RadioButton } from 'phosphor-react';
-import { useId, useMemo, useState } from 'react';
-import { InputNode, OutputNode, RackNode } from '../../types/RackTypes';
+import { Play, RadioButton, Stop } from 'phosphor-react';
+import { useEffect, useId, useMemo, useState } from 'react';
+import InputValue from '../InputValue/InputValue';
+
+import Constants from '../../constants';
+import { InputNode, OutputNode, ParamOptions, RackNode } from '../../types/RackTypes';
 import { useRackDispatch, useRackState } from '../../contexts/RackContext';
 import { Actions } from '../../types/RackContextTypes';
 import './Module.css';
+import { useMinMax, useParams, useStep } from '../../hooks/ModuleHooks';
+import AudioVisualizer from '../Analyzer/Analyzer';
 
 interface RackNodeParamProps {
   name: string; 
@@ -12,58 +17,19 @@ interface RackNodeParamProps {
   types?: string[];
   input?: InputNode
   value?: number;
-}
-const useStep = (param: string | AudioParam) => {
-  return useMemo(() => {
-    if (typeof param === 'string') return;
-    return param.maxValue - param.minValue <= 100 ? 0.001 : 0.01;    
-  }, [param]);
+  onClick: (name: string) => void;
+  options?: ParamOptions, 
+  nodeId: string,
 }
 
-function RackNodeParam({ name, param, onChange, types, input, value}: RackNodeParamProps) {
-  const step = useStep(param);
-
-  const renderParam = useMemo(() => {
-    if (typeof param === 'string') {
-      return param;
-    } else {
-      return value?.toFixed(2);
-    }
-  }, [param, value])
-
-  return (
-    <div>
-      <div style={{ color: `#${input?.color}`}}>
-        {name}:
-        {' '}
-        {renderParam} 
-      </div>
-      {typeof param === 'string' ? (
-        <select onChange={(e) => onChange?.(name, e.target.value)} id="" name="">
-          {types?.map((type) => (<option key={type} value={type}>{type}</option>))}
-        </select>
-       ) : (
-        <input 
-          type="range"
-          min={param.minValue}
-          max={param.maxValue}
-          value={value?.toFixed(3)}
-          step={step}
-          onChange={(e) => onChange?.(name, parseFloat(e.target.value))}
-        />
-      )}
-    </div>
-  );
-}
-
-interface ModuleOutputsProps {
+interface ModuleIOProps {
  count: number;
- output: OutputNode;
- onClick: () => void;
+ output?: OutputNode;
+ onClick: (name: string) => void;
  name: string;
 }
 
-function ModuleIO({ count, output, onClick, name}: ModuleOutputsProps) {
+function ModuleIO({ count, output, onClick, name}: ModuleIOProps) {
   const id = useId();
   return (
     <div>
@@ -72,7 +38,7 @@ function ModuleIO({ count, output, onClick, name}: ModuleOutputsProps) {
         <button 
           className="module__io-button"
           key={`${id}-${i}`}
-          onClick={onClick}
+          onClick={() => onClick(output?.paramName ?? '')}
         >
           <RadioButton size={20} color={output?.color} />
         </button>
@@ -81,37 +47,84 @@ function ModuleIO({ count, output, onClick, name}: ModuleOutputsProps) {
   )
 }
 
-const useNodesMap = (nodes: (InputNode | OutputNode)[]) => {
-  return useMemo(() => {
-    if (!nodes) {
-      return {}
+function RackNodeParam({ 
+  name, param, onChange, onClick, types, input, value, options, nodeId,
+}: RackNodeParamProps) {
+  const step = useStep(param);
+  const { min, max } = useMinMax(name, param, options);
+  
+  const renderParam = useMemo(() => {
+    console.log('[RackNodeParam] updating value step or param');
+    if (typeof param === 'string') {
+      return param;
+    } else {
+      return (
+        <InputValue 
+          step={step ?? 0.01}
+          min={min ?? 0}
+          max={max ?? 1}
+          value={value?.toString() ?? ''}
+          onChange={(val: number) => onChange?.(name, val)}
+        />
+      ); 
     }
-    const map: {[key: string]: InputNode} = {}
-    for(let i = 0; i < nodes.length; i++) {
-      let curr = nodes[i];
-      map[!curr.paramName ? 'main' : curr.paramName] = curr;
-    }
-    return map;
-  }, [nodes]);
-}
+  }, [param, min, max, value, step])
 
-const useParams = (paramMap?: Map<string, AudioParam>) => {
-  const [paramValues, setParamValues] = useState(paramMap ? Object.fromEntries(paramMap) : null)
+  const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.(name, parseFloat(e.target.value));
+  }
 
-  const params = useMemo(() => {
-    if (!paramValues) return [];
-    return Object.entries(paramValues);
-  }, [paramMap]);
-
-  return { values: paramValues, setValues: setParamValues, params };
+  return (
+    <div>
+      <div style={{ color: `#${input?.color}`}}>
+        {name}:
+        {' '}
+        {renderParam} 
+      </div>
+      <ModuleIO 
+        name={name}
+        count={1}
+        output={input}
+        onClick={() => onClick(name)}
+      />
+      {typeof param === 'string' ? (
+        <select 
+          onChange={(e) => onChange?.(name, e.target.value)} 
+        >
+          {types?.map((type) => (
+            <option key={type} value={type}>{type}</option>)
+          )}
+        </select>
+       ) : (
+        <input 
+          type="range"
+          min={(min === Constants.NODE_MIN_VALUE 
+              ? Constants.MIN_VALUE 
+              : min 
+          )}
+          max={(max === Constants.NODE_MAX_VALUE 
+            ? Constants.MAX_VALUE 
+            : max 
+          )}
+          value={value?.toFixed(3)}
+          step={step}
+          onChange={handleRangeChange}
+        />
+      )}
+    </div>
+  );
 }
 
 function Module({ node }: {node: RackNode}) {
   const { values, setValues, params } = useParams(node?.params);
   const { patches } = useRackState();
-
   const dispatch = useRackDispatch();
+  const [inputs, outputs] = useMemo(() => {
+    return [patches?.[node.id]?.inputs, patches?.[node.id]?.outputs]
+  }, [patches?.[node.id]?.inputs, patches?.[node.id]?.outputs]);
   const id = useId();
+
+  const [started, setStarted] = useState(node?.started);
 
   const handleUpdateParam = (name: string , val: number | string) => {
     if (!values) return;
@@ -127,20 +140,55 @@ function Module({ node }: {node: RackNode}) {
     setValues((state) => ({...state, [name]: param}));
   }
 
-  const handleAddMainInput = () => { 
-    dispatch({ actionType: Actions.AddInput , message: { inputId: node.id }});
+  const handleAddMainInput = (name: string) => { 
+    dispatch({ 
+      actionType: (!patches[node?.id]?.inputs?.main 
+        ? Actions.AddInput 
+        : Actions.RemoveInput),
+      message: { inputId: node.id, param: name},
+    });
   }
 
-  const handleAddMainOutput = () => {
-    dispatch({ actionType: Actions.AddOutput, message: { outputId: node.id }});
+  const handleAddMainOutput = (name: string) => {
+    dispatch({ 
+      actionType: ((Object.keys(patches[node?.id]?.outputs ?? {}).length === 0)
+      ? Actions.AddOutput 
+      : Actions.RemoveOutput),
+      message: { outputId: node.id, param: name }
+    });
+  }
+
+  const handleParamClick = (name: string) => {
+    dispatch({ 
+      actionType: (!patches[node?.id]?.inputs?.[name] 
+        ? Actions.AddInput 
+        : Actions.RemoveInput),
+      message: { inputId: node.id, param: name }
+    });
+  }
+
+  const handleStartNode = () => {
+    const nodeStarted = node.toggleStarted();
+    setStarted(nodeStarted);
   }
 
   return (
     <div className="module">
+      {/* add option to hide this */}
+      <div style={{ backgroundColor: 'white' }} >
+        {node.analyzer && <AudioVisualizer node={node.analyzer} />}
+      </div>
       <h3>{node.name}</h3>
       {typeof node?.node?.start === 'function' && (
-        <button className="module__io-button" onClick={() => node.node.start?.()}>
-          <Play size={20} />  
+        <button 
+          className="module__io-button"
+          onClick={handleStartNode}
+        >
+          {started ? ( 
+            <Stop size={20} />
+          ) : (
+            <Play size={20} />
+          )}
         </button>
       )}
       <div className="module__params">
@@ -151,16 +199,32 @@ function Module({ node }: {node: RackNode}) {
             name={name}
             param={param}
             value={param?.value}
-            types={name === "type" && node?.types ? node.types : null}
-            input={patches[node?.id]?.inputs ? patches[node?.id]?.inputs[name] : undefined}
+            types={node?.paramOptions?.type?.values}
+            nodeId={node.id}
+            input={inputs
+              ? inputs[name] 
+              : undefined
+            }
+            onClick={handleParamClick}
+            options={node?.paramOptions?.[name]}
           />
         ))}
       </div>
       <div className="module__io">
         {/* Main in */}
-        <ModuleIO count={1} name="in" onClick={handleAddMainInput} output={patches[node.id]?.inputs?.main}/> 
+        <ModuleIO
+          count={1}
+          name="in"
+          onClick={handleAddMainInput}
+          output={inputs?.main}
+        /> 
         {/* Main out */}
-        <ModuleIO count={1} name="out" onClick={handleAddMainOutput} output={patches[node.id]?.outputs?.main}/> 
+        <ModuleIO
+          count={1}
+          name="out"
+          onClick={handleAddMainOutput}
+          output={Object.values(outputs ?? {})?.[0]}
+        /> 
       </div>
     </div>
   );

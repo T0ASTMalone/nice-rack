@@ -1,0 +1,22 @@
+.input-value__container {
+  max-width: 100%;
+}
+
+.input-value__input {
+  max-width: 100px;
+  display: none;
+} 
+
+.input-value__value {
+  margin: 0;
+  max-width: 100px;
+  display: none;
+}
+
+.input-value__input.focused {
+  display: block; 
+}
+
+.input-value__value.focused {
+  display: block; 
+}
