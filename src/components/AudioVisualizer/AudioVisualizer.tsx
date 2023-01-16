@@ -1,5 +1,7 @@
 import useCanvas from '../../hooks/useCanvas';
 
+import './AudioVisualizer.css';
+
 const Canvas = (props: any) => {
   const { draw, ...rest } = props;
   const canvasRef = useCanvas(draw);
@@ -8,7 +10,8 @@ const Canvas = (props: any) => {
 
 
 const AudioVisualizer = ({ node, ...rest }: { node: AnalyserNode }) => {
-
+  // todo update to show more or less resolution if drawing 
+  // outside the canvas 
   function cdraw(ctx: CanvasRenderingContext2D){
     var bufferLength = node.frequencyBinCount;
     var dataArray = new Uint8Array(bufferLength);
@@ -42,8 +45,8 @@ const AudioVisualizer = ({ node, ...rest }: { node: AnalyserNode }) => {
   }
 
   return (
-      <div className="auido-visualizer">
-          <Canvas draw={cdraw} {...rest}/>
+      <div className="audio-visualizer">
+          <Canvas className="audio-visualizer__canvas" draw={cdraw} {...rest}/>
       </div>
 
   );

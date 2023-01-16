@@ -1,5 +1,6 @@
 .input-value__container {
   max-width: 100%;
+  margin-left: 12px;
 }
 
 .input-value__input {

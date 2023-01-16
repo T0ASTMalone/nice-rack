@@ -1,5 +1,4 @@
 import { v4 as uuid } from 'uuid';
-import { RackGainNode } from './RackModules';
 
 class InputNode {
   node?: RackNode;
@@ -123,7 +122,8 @@ class RackNode {
     this.name = opt?.name;
     this.paramOptions = opt?.paramOptions;
     this.started = false;
-    
+    // FIXME: maybe there is a better way to check if this is not the context
+    // destination node
     if (this.name) {
       const analyzerNode = new AnalyserNode(this.node.context);
       this.analyzer = analyzerNode;

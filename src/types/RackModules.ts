@@ -1,5 +1,9 @@
 import { RackNode } from './RackTypes';
 
+import { PitchProcessor } from 'pitch-processor';
+
+export { PitchProcessor }
+
 export class RackOscillatorNode extends RackNode {
   constructor(context: AudioContext, opt?: OscillatorOptions) {
     super(new OscillatorNode(context, opt), { 
@@ -88,3 +92,4 @@ export class RackChannelNode extends RackNode {
     super(new ChannelMergerNode(context, opt), { name: 'Merger' });
   }
 }
+

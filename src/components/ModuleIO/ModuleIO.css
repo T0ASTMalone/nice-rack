@@ -1,0 +1,16 @@
+.module-io__button {
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  justify-items: center;
+  justify-content: center;
+  margin: auto;
+}
+
+.module-io__button.active {
+  border-color: #646cff;
+}
+
+.module-io__name {
+  margin: 0 0 8px 0;
+}

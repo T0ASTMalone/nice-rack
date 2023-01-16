@@ -3,6 +3,7 @@ import { Rack } from './components/Rack';
 import { RackProvider } from './contexts/RackContext';
 
 import './App.css';
+import 'overlayscrollbars/overlayscrollbars.css';
 
 function App() {
   return (

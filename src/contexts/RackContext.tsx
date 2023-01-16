@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useEffect, useReducer } from 'react';
+import { init } from 'pitch-processor';
 import { Actions, RackAction, RackState } from '../types/RackContextTypes';
 import { RackDestinationNode } from '../types/RackTypes';
 import { createInput, createOutput, removeInput, removeOutput } from './RackContextReducers';
-
 
 const RackStateContext = createContext<RackState | undefined>(undefined);
 const RackDispatchContext = createContext<React.Dispatch<RackAction> | undefined>(undefined);
@@ -49,6 +49,13 @@ const rackReducer = (state: RackState, action: RackAction): RackState => {
 
 function RackProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(rackReducer, defaultRackState);
+
+  useEffect(() => {
+    if (state.context) {
+      // call init function for third party modules
+      init(state.context);
+    }
+  }, [state.context]);
 
   return (
     <RackStateContext.Provider value={state}>
