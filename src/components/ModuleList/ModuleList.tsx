@@ -13,6 +13,8 @@ function ModuleList() {
     return Object.keys(Modules);
   }, [])
 
+  if (!context) return null;
+
   const handleAddNode = (name: string) => {
     if (!names.includes(name)) return;
     const node = new Modules[name as keyof typeof Modules](context);

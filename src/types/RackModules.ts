@@ -1,8 +1,9 @@
 import { RackNode } from './RackTypes';
+// TODO: move pitch detector back to this repo until a better 
+// solution to installable rack modules is found
+// import { PitchProcessorNode } from 'pitch-node';
 
-import { PitchProcessor } from 'pitch-processor';
-
-export { PitchProcessor }
+// export { PitchProcessorNode };
 
 export class RackOscillatorNode extends RackNode {
   constructor(context: AudioContext, opt?: OscillatorOptions) {

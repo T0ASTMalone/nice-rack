@@ -1,19 +1,33 @@
 import { Play, Stop } from 'phosphor-react';
-import { useId, useMemo, useState } from 'react';
-
-import InputValue from '../InputValue/InputValue';
+import { useEffect, useId, useMemo, useState } from 'react';
 
 import { RackNode } from '../../types/RackTypes';
 import { useRackDispatch, useRackState } from '../../contexts/RackContext';
 import { Actions } from '../../types/RackContextTypes';
 
-import { useMinMax, useParams, useStep } from '../../hooks/ModuleHooks';
+import { useParams } from '../../hooks/ModuleHooks';
 
 import './Module.css';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { ModuleVisualizer } from '../ModuleVisualizer';
 import { ModuleIO } from '../ModuleIO';
 import { ModuleParam } from '../ModuleParam';
+
+function Value({ node }: { node: RackNode }) {
+  const [val, setVal] = useState();
+  useEffect(() => {
+    if (node) {
+      console.log('setting on value update cb');
+      node.onValueUpdate((val: any) => {
+        console.log('Value settin val');
+        setVal(val)
+      });
+    }
+  }, [node]);
+  console.log('value', val);
+
+  return <span>{val}</span>
+}
 
 
 function Module({ node }: {node: RackNode}) {
@@ -82,7 +96,7 @@ function Module({ node }: {node: RackNode}) {
       >
         <div className="module__scroll-container">
           {node.analyzer && <ModuleVisualizer analyzer={node.analyzer}/>}
-
+          <Value node={node} />
           <h3 className="module__io-name">{node.name}</h3>
 
           {typeof node?.node?.start === 'function' && (

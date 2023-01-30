@@ -44,6 +44,8 @@ export const createOutput = (
   inputNode.param = ioNode.param;
   inputNode.paramName = ioNode.paramName;
 
+  node?.init?.(node?.invokeOnValueUpdateCallbacks);
+
   return { 
     ...state,
     input: '',
@@ -119,6 +121,8 @@ export const createInput = (
   }else{
     output.outputNode.connect(node.node);
   }
+
+  node?.init?.(node?.invokeOnValueUpdateCallbacks);
 
   return { 
     ...state,

@@ -11,6 +11,7 @@ export enum Actions {
   AddInput,
   RemoveInput,
   RemoveOutput,
+  Init,
 }
 
 export enum IO {
@@ -30,8 +31,8 @@ export interface IPatch {
 }
 
 export type RackState = {
-  context: AudioContext,
-  destination: RackDestinationNode,
+  context?: AudioContext,
+  destination?: RackDestinationNode,
   // current input waiting for output to complete patch
   input: string,
   // current output waiting for input to complete patch

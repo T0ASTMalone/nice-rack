@@ -69,6 +69,8 @@ interface RackAudioNode extends AudioNode {
   type?: string;
   start?: (when?: number) => void;
   stop?: (when?: number) => void;
+  init?: () => void;
+  gain?: AudioParam;
 }
 
 export type ParamOptions = {
@@ -83,7 +85,6 @@ interface RackNodeOptions {
   paramOptions?: {[key: string]: ParamOptions }
 }
 
-const smoothingInterval = 0.1;
 // TODO: update to keep track of started state
 // TODO: subscription to state that needs to be updated in ui (inputNodes/OutputNode, stated state)
 class RackNode {
@@ -101,12 +102,13 @@ class RackNode {
 
   readonly analyzer?: AnalyserNode;
 
+  onValueUpdateCallBacks?: ((val: any) => void)[]
+
   started: boolean;
 
   inputNodes: Array<InputNode>;
 
   outPutNodes: Array<OutputNode>;
-
 
 
   constructor(node: AudioNode, opt: RackNodeOptions) {
@@ -124,13 +126,16 @@ class RackNode {
     this.started = false;
     // FIXME: maybe there is a better way to check if this is not the context
     // destination node
-    if (this.name) {
+    if (this.name !== 'Destination') {
       const analyzerNode = new AnalyserNode(this.node.context);
       this.analyzer = analyzerNode;
       this.node.connect(analyzerNode);
     }
     // if start 
+    // FIXME: we should add to all nodes not just those with start and stop
+    // do we need it in front of something like a rackgain node?
     if (this.node?.start) {
+      // initializes to off
       const gainNode = new GainNode(this.node.context, { gain: 0 });
 
       this.node?.start?.();
@@ -141,7 +146,7 @@ class RackNode {
     } else {
       this.outputNode = node;
     }
-
+    this.onValueUpdateCallBacks = [];
 
   }
 
@@ -181,9 +186,7 @@ class RackNode {
   start() {
     if (this.node?.start) {
       const now = this.node.context.currentTime;
-      console.log('[RackNodeh] now', now)
-      this.outputNode?.gain?.setValueAtTime?.(1, now, smoothingInterval);
-      console.log('[RackNodeh] now', this?.outputNode?.gain);
+      this.outputNode?.gain?.setValueAtTime?.(1, now);
       this.started = true;
     }
     return this.started;
@@ -192,9 +195,7 @@ class RackNode {
   stop() {
     if (this.node?.stop) {
       const now = this.node.context.currentTime;
-      console.log('[RackNodeh] now', now)
-      this.outputNode?.gain?.setValueAtTime?.(0, now, smoothingInterval);
-      console.log('[RackNodeh] now', this?.outputNode?.gain);
+      this.outputNode?.gain?.setValueAtTime?.(0, now);
       this.started = false;
     }
     return this.started;
@@ -206,7 +207,6 @@ class RackNode {
   */
   toggleStarted() {
     if (!this.node?.start || !this.node?.stop) return false;
-    console.log('[RackNode] toggleing started state: ', this.started);
     if (this.started) {
       return this.stop();
     } else {
@@ -214,9 +214,18 @@ class RackNode {
     }
   }
 
+  onValueUpdate(cb: (val: any) => void) {
+    if (typeof cb === "function"){
+      this.onValueUpdateCallBacks?.push(cb);
+    }
+  }
+
+  invokeOnValueUpdateCallbacks(val: any) {
+    console.log('on value update onValueUpdateCallBacks len: ', this.onValueUpdateCallBacks?.length)
+    this.onValueUpdateCallBacks?.forEach((cb) => cb(val));
+  }
+
   createOutput(id: string, color: string, node?: RackNode, param?: string) {
-    console.log('[RacReducers] createOuput param', node?.params?.get(param ?? ''));
-    console.log('[RacReducers] createOuput param str', param);
     const output = new OutputNode(id, color, node, node?.params?.get(param ?? ''), param);
     this.#connect(output);
     this.outPutNodes.push(output);
@@ -224,8 +233,6 @@ class RackNode {
   }
 
   createInput(id: string, color: string, node?: RackNode, param?: string) {
-    console.log('[RacReducers] createInput param', node?.params?.get(param ?? ''));
-    console.log('[RacReducers] createInput param str', param);
     const input = new InputNode(id, color, node, node?.params?.get(param ?? ''), param);
     this.inputNodes.push(input);
     return input;
@@ -257,7 +264,7 @@ class RackNode {
 
 class RackDestinationNode extends RackNode {
   constructor(context:AudioContext) {
-    super(context.destination, 'Destination');
+    super(context.destination, { name: 'Destination' });
   }
 }
 

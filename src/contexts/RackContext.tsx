@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
-import { init } from 'pitch-processor';
 import { Actions, RackAction, RackState } from '../types/RackContextTypes';
 import { RackDestinationNode } from '../types/RackTypes';
 import { createInput, createOutput, removeInput, removeOutput } from './RackContextReducers';
@@ -7,15 +6,15 @@ import { createInput, createOutput, removeInput, removeOutput } from './RackCont
 const RackStateContext = createContext<RackState | undefined>(undefined);
 const RackDispatchContext = createContext<React.Dispatch<RackAction> | undefined>(undefined);
 
-const RackAudioContext = new AudioContext();
 const defaultRackState: RackState = {
-  context: RackAudioContext,
-  destination: new RackDestinationNode(RackAudioContext),
+  context: undefined,
+  destination: undefined,
   patches: {}, 
   modules: [],
   input: '',
   output: '',
 };
+
 
 const rackReducer = (state: RackState, action: RackAction): RackState => {
   if (!action) {
@@ -41,6 +40,9 @@ const rackReducer = (state: RackState, action: RackAction): RackState => {
       return {...removeOutput(action.message.outputId, state, action.message.param)}
     case Actions.RemoveInput: 
       return {...removeInput(action.message.inputId, state, action.message.param)}
+    case Actions.Init: 
+      const context = new AudioContext();
+      return { ...state, context: context, destination: new RackDestinationNode(context) } 
     default:
       break;
   }
@@ -49,13 +51,6 @@ const rackReducer = (state: RackState, action: RackAction): RackState => {
 
 function RackProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(rackReducer, defaultRackState);
-
-  useEffect(() => {
-    if (state.context) {
-      // call init function for third party modules
-      init(state.context);
-    }
-  }, [state.context]);
 
   return (
     <RackStateContext.Provider value={state}>
