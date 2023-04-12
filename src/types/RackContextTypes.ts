@@ -1,4 +1,4 @@
-import { InputNode, OutputNode, RackDestinationNode, RackNode } from './RackTypes';
+import { IONode, RackDestinationNode, RackNode } from './RackTypes';
 
 export enum Actions {
   StartPatch,
@@ -21,13 +21,16 @@ export enum IO {
 
 export type TPatch = {
   patchId: string,
-  input: InputNode,
-  output: OutputNode,
+  input: IONode,
+  output: IONode,
 };
 
 export interface IPatch {
   // node id
-  [key: string] : { inputs: { [key: string] : InputNode }, outputs: { [key: string]: OutputNode } };
+  [key: string] : { 
+    inputs: { [key: string] : IONode }, 
+    outputs: { [key: string]: IONode } 
+  };
 }
 
 export type RackState = {
@@ -41,7 +44,7 @@ export type RackState = {
   // a new patch will be created and input/output will be
   // cleared
   patches: IPatch,
-  modules: RackNode[],
+  modules: RackNode<any>[],
 };
 
 export type RackAction = {

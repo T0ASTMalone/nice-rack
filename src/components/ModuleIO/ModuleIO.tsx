@@ -1,20 +1,20 @@
 import { useId } from "react";
 import { RadioButton } from "phosphor-react";
 
-import { OutputNode } from "../../types/RackTypes";
+import { IONode, RackAudioNode } from "../../types/RackTypes";
 
 import './ModuleIO.css';
 
-interface ModuleIOProps {
+interface ModuleIOProps<T extends RackAudioNode> {
  count: number;
- output?: OutputNode;
+ output?: IONode<T>;
  onClick: (name: string) => void;
  name?: string;
 }
 
-export default function ModuleIO({
+export default function ModuleIO<T extends RackAudioNode>({
   count, output, onClick, name
-}: ModuleIOProps) {
+}: ModuleIOProps<T>) {
   const id = useId();
 
   return (

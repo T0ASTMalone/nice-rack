@@ -1,19 +1,17 @@
 import { Play, Stop } from 'phosphor-react';
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { RackNode } from '../../types/RackTypes';
-import { useRackDispatch, useRackState } from '../../contexts/RackContext';
-import { Actions } from '../../types/RackContextTypes';
+import { RackNode, RackModuleUIProps, RackAudioNode } from '../../types/RackTypes';
 
-import { useParams } from '../../hooks/ModuleHooks';
 
 import './Module.css';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { ModuleVisualizer } from '../ModuleVisualizer';
 import { ModuleIO } from '../ModuleIO';
 import { ModuleParam } from '../ModuleParam';
+import useRackApi from '../../hooks/useRackApi';
 
-function Value({ node }: { node: RackNode }) {
+function Value({ node }: { node: RackNode<any> }) {
   const [val, setVal] = useState();
   useEffect(() => {
     if (node) {
@@ -29,63 +27,19 @@ function Value({ node }: { node: RackNode }) {
   return <span>{val}</span>
 }
 
-
-function Module({ node }: {node: RackNode}) {
-  const { values, setValues, params } = useParams(node?.params);
-  const { patches } = useRackState();
-  const dispatch = useRackDispatch();
-  const [inputs, outputs] = useMemo(() => {
-    return [patches?.[node.id]?.inputs, patches?.[node.id]?.outputs]
-  }, [patches?.[node.id]?.inputs, patches?.[node.id]?.outputs]);
-  const id = useId();
-
-  const [started, setStarted] = useState(node?.started);
-
-  const handleUpdateParam = (name: string , val: number | string) => {
-    if (!values) return;
-
-    const param = values[name];
-
-    if (name === "type") {
-      node.type = val;
-    } else if (param && typeof val === 'number'){
-      param.value = val;
-    }
-
-    setValues((state) => ({...state, [name]: param}));
-  }
-
-  const handleAddMainInput = (name: string) => { 
-    dispatch({ 
-      actionType: (!patches[node?.id]?.inputs?.main 
-        ? Actions.AddInput 
-        : Actions.RemoveInput),
-      message: { inputId: node.id, param: name},
-    });
-  }
-
-  const handleAddMainOutput = (name: string) => {
-    dispatch({ 
-      actionType: ((Object.keys(patches[node?.id]?.outputs ?? {}).length === 0)
-      ? Actions.AddOutput 
-      : Actions.RemoveOutput),
-      message: { outputId: node.id, param: name }
-    });
-  }
-
-  const handleParamClick = (name: string) => {
-    dispatch({ 
-      actionType: (!patches[node?.id]?.inputs?.[name] 
-        ? Actions.AddInput 
-        : Actions.RemoveInput),
-      message: { inputId: node.id, param: name }
-    });
-  }
-
-  const handleStartNode = () => {
-    const nodeStarted = node.toggleStarted();
-    setStarted(nodeStarted);
-  }
+function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
+  const { 
+    id, 
+    started,
+    inputs,
+    outputs,
+    params,
+    handleUpdateParam,
+    handleAddMainInput,
+    handleStartNode, 
+    handleParamClick, 
+    handleAddMainOutput, 
+  } = useRackApi(node);
 
   return (
     <div className="module">

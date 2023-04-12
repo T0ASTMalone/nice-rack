@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Oscillator",
+    "location": "src/modules/Oscillator",
+    "ui": "OscillatorModule",
+    "node": "RackOscillatorNode"
+  },
+  {
+    "name": "PitchDetector",
+    "location": "src/modules/PitchDetector",
+    "ui": "PitchModule",
+    "node": "RackPitchProcessor"
+  }
+]

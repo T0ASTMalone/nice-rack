@@ -1,12 +1,17 @@
 import { RackNode } from '../../../types/RackTypes';
 
-export default class RackOscillatorNode extends RackNode {
-  constructor(context: AudioContext, opt?: OscillatorOptions) {
-    super(new OscillatorNode(context, opt), { 
+export default class RackOscillatorNode extends RackNode<OscillatorNode> {
+  constructor(context: AudioContext) {
+    super(context, { 
       name: 'Oscillator',
       paramOptions: {
         'type':  { values: ['square', 'sine', 'sawtooth'] },
       }
     });
+  }
+  
+  async init(opt?: OscillatorOptions) {
+    this.node = new OscillatorNode(this.context, opt);
+    return this;
   }
 }

@@ -1,2 +1,2 @@
-export { default as OscillatorModule } from './ui';
-export { default as RackOscillatorNode } from './node';
+export { default as ModuleUI } from './ui';
+export { default as Node } from './node';

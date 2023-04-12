@@ -1,26 +1,26 @@
 import { useMemo } from "react";
 import { useMinMax, useStep } from "../../hooks/ModuleHooks";
-import { InputNode, ParamOptions } from "../../types/RackTypes";
+import { IONode, ParamOptions, RackAudioNode } from "../../types/RackTypes";
 import InputValue from "../InputValue/InputValue";
 
 import Constants from '../../constants';
 import { ModuleIO } from "../ModuleIO";
 
-interface ModuleParamProps {
+interface ModuleParamProps<T extends RackAudioNode> {
   name: string; 
   param: AudioParam | string;
   onChange?: (name: string, val: number | string) => void;
   types?: string[];
-  input?: InputNode
+  input?: IONode<T>
   value?: number;
   onClick: (name: string) => void;
   options?: ParamOptions,
   nodeId: string,
 }
 
-export default function ModuleParam({ 
+export default function ModuleParam<T extends RackAudioNode>({ 
   name, param, onChange, onClick, types, input, value, options, nodeId,
-}: ModuleParamProps) {
+}: ModuleParamProps<T>) {
   const step = useStep(param);
   const { min, max } = useMinMax(name, param, options);
   

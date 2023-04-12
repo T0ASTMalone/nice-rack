@@ -8,7 +8,7 @@ export const createOutput = (
   param?: string,
 ): RackState => {
   // find node
-  const node = state.destination.id === id 
+  const node = (state.destination && state.destination.id === id)
     ? state.destination 
     : state.modules.find((n) => n.id === id);
   
@@ -17,7 +17,7 @@ export const createOutput = (
 
   const input = state.input
     ? state.modules.find((n) => n.inputNodes.some((i) => i.connectionId === state.input))
-      ?? (state.destination.inputNodes
+      ?? (state.destination && state.destination.inputNodes
           .some((n) => n.connectionId === state.input) 
         ? state.destination 
         : undefined)
@@ -29,12 +29,16 @@ export const createOutput = (
 
   const inputNode = input?.inputNodes
     ?.find((i) => i.connectionId === state.input);
-
   const connectionId = inputNode ? inputNode.connectionId : uuid();
   const color = inputNode ? inputNode.color : randomColor();
 
   // create output for node
-  const ioNode = node.createOutput(connectionId, color, input, inputNode?.paramName || param) 
+  const ioNode = node.createOutput(
+    connectionId,
+    color,
+    input,
+    inputNode?.paramName || param
+  );
 
   if (!inputNode || !input) {
     return { ...state, output: ioNode.connectionId };
@@ -44,12 +48,12 @@ export const createOutput = (
   inputNode.param = ioNode.param;
   inputNode.paramName = ioNode.paramName;
 
-  node?.init?.(node?.invokeOnValueUpdateCallbacks);
-
   return { 
     ...state,
+    // clear inputs
     input: '',
     output: '',
+    // update patches 
     patches : {
       ...state.patches,
       [input.id]: {
@@ -76,7 +80,7 @@ export const createInput = (
   param?: string,
 ): RackState => {
   // find node
-  const node = state.destination.id === id 
+  const node = (state.destination && state.destination.id === id)
     ? state.destination 
     : state.modules.find((n) => n.id === id);
   
@@ -86,7 +90,7 @@ export const createInput = (
   // FIXME: gross   
   const output = state.output
     ? state.modules.find((n) => n.outPutNodes.some((i) => i.connectionId === state.output))
-      ?? (state.destination.outPutNodes
+      ?? (state.destination && state.destination.outPutNodes
           .some((n) => n.connectionId === state.output) 
         ? state.destination 
         : undefined)
@@ -118,11 +122,10 @@ export const createInput = (
 
   if (outputNode.param) {
     output.outputNode.connect(outputNode.param);
-  }else{
+  }else if (node.node){
+    // ^ TODO: figure out if we should throw an error or something
     output.outputNode.connect(node.node);
   }
-
-  node?.init?.(node?.invokeOnValueUpdateCallbacks);
 
   return { 
     ...state,
@@ -147,10 +150,11 @@ export const createInput = (
     }
   };
 };
+
 export const removeOutput = (
   id: string, state: RackState, param?: string
 ) => {                    
-  let node = state.destination.id === id 
+  let node = (state?.destination && state.destination.id === id)
     ? state.destination 
     : state.modules.find((node) => node.id === id);
 
@@ -165,8 +169,6 @@ export const removeOutput = (
 
   delete inputOutputs['main'];
   delete outputInputs[param || 'main'];
-
-
 
   node.outputNode.disconnect();
 
@@ -189,7 +191,7 @@ export const removeOutput = (
 export const removeInput = (
   id: string, state: RackState, param?: string
 ) => {                    
-  let node = state.destination.id === id 
+  let node = (state.destination && state.destination.id === id)
     ? state.destination 
     : state.modules.find((node) => node.id === id);
 

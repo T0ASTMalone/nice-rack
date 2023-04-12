@@ -1,7 +1,9 @@
 import { Module } from '../../../components/Module';
-import { RackNode } from '../../../types/RackTypes';
+import { RackModuleUIProps, RackModuleUI} from '../../../types/RackTypes';
 
-export default function OscillatorModule({ node }: { node: RackNode }) {
-  return <Module node={node} />
+export default function OscillatorModule({ 
+  node, context,
+}:  RackModuleUIProps<OscillatorNode>): RackModuleUI<OscillatorNode> {
+  return <Module context={context} node={node} /> 
 }
 
