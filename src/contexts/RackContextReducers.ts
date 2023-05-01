@@ -15,20 +15,21 @@ export const createOutput = (
   // if !node return
   if (!node) return state;
 
-  const input = state.input
-    ? state.modules.find((n) => n.inputNodes.some((i) => i.connectionId === state.input))
-      ?? (state.destination && state.destination.inputNodes
-          .some((n) => n.connectionId === state.input) 
-        ? state.destination 
-        : undefined)
-    : undefined;
+  let input;
+
+  if (state.input) {
+    input = state.modules.find((n) => n.inputNodes.some((i) => i.connectionId === state.input)) 
+
+    if (!input && state.destination && state.destination.inputNodes.some((n) => n.connectionId === state.input)) {
+      input = state.destination 
+    }
+  } 
 
   if (input && input.id === node.id) {
     return state;
   }
 
-  const inputNode = input?.inputNodes
-    ?.find((i) => i.connectionId === state.input);
+  const inputNode = input?.inputNodes?.find((i) => i.connectionId === state.input);
   const connectionId = inputNode ? inputNode.connectionId : uuid();
   const color = inputNode ? inputNode.color : randomColor();
 
@@ -79,6 +80,7 @@ export const createInput = (
   state: RackState,
   param?: string,
 ): RackState => {
+  console.log('[createInput] running');
   // find node
   const node = (state.destination && state.destination.id === id)
     ? state.destination 
@@ -100,8 +102,7 @@ export const createInput = (
     return state;
   }
 
-  const outputNode = output?.outPutNodes
-    ?.find((i) => i.connectionId === state.output);
+  const outputNode = output?.outPutNodes?.find((i) => i.connectionId === state.output);
 
   const connectionId = outputNode ? outputNode.connectionId : uuid();
   // TODO: make sure color does not already exist or is not close to another color
@@ -110,7 +111,7 @@ export const createInput = (
 
   // create output for node
   const ioNode = node.createInput(connectionId, color, output, param) 
-
+  
 
   if (!outputNode || !output) {
     return { ...state, input: ioNode.connectionId };
@@ -166,11 +167,15 @@ export const removeOutput = (
 
   const outputInputs = state.patches?.[output.node.id].inputs;
   const inputOutputs = state?.patches?.[node.id]?.outputs;
+  const connectionId = outputInputs['main']?.connectionId;
 
   delete inputOutputs['main'];
   delete outputInputs[param || 'main'];
-
+  // TODO: remove node from list of ionodes (call remove output) in racknode class
   node.outputNode.disconnect();
+
+  node.removeOutput(connectionId);
+  output.node.removeInput(connectionId);
 
   return {
     ...state,
@@ -210,6 +215,7 @@ export const removeInput = (
   const inputOutputs = state.patches?.[input.node.id].outputs;
 
   const nodeInputs = state.patches?.[node.id].inputs;
+  const connectionId = nodeInputs?.main?.connectionId;
 
   delete inputOutputs?.main;
 
@@ -217,6 +223,9 @@ export const removeInput = (
 
   console.log('[RackReducers] disconnecting')
   input.node.outputNode.disconnect();
+
+  input.node.removeOutput(connectionId);
+  node.removeInput(connectionId);
 
   return {
     ...state,

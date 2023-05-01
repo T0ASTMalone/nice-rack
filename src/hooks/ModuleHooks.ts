@@ -3,7 +3,9 @@ import type { ParamOptions } from "../types/RackTypes";
 
 export const useStep = (param: string | AudioParam) => {
   return useMemo(() => {
-    if (typeof param === 'string') return;
+    if (typeof param === 'string') {
+      return;
+    }
     if (param.maxValue === 3.4028234663852886e+38) {
       console.log('[useStep] param.max ', param.maxValue);
     }
@@ -16,7 +18,9 @@ export const useParams = (paramMap?: Map<string, AudioParam>) => {
   const [paramValues, setParamValues] = useState(paramMap ? Object.fromEntries(paramMap) : null)
 
   const params = useMemo(() => {
-    if (!paramValues) return [];
+    if (!paramValues) { 
+      return [];
+    }
     return Object.entries(paramValues);
   }, [paramMap]);
 

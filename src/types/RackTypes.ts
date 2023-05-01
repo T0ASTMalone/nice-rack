@@ -108,18 +108,15 @@ class RackNode<T extends RackAudioNode> {
     this.name = opt?.name;
     this.paramOptions = opt?.paramOptions;
     
-    if (this.name !== 'Destination') {
-      // TODO: pass in context
-      const analyzerNode = new AnalyserNode(context);
-      this.analyzer = analyzerNode;
-      // this._node.connect(analyzerNode);
-    }
+    
 
     this.outputNode = new GainNode(context, { gain: 0 });
-    /*
-    this._node?.start?.();
-    this._node.connect(gainNode);
-    */
+
+    if (this.name !== 'Destination') {
+      const analyzerNode = new AnalyserNode(context);
+      this.analyzer = analyzerNode;
+      this.outputNode.connect(analyzerNode);
+    }
     this.onValueUpdateCallBacks = [];
 
   }
@@ -221,13 +218,7 @@ class RackNode<T extends RackAudioNode> {
     throw new Error('Method "init()" must be implemented.');
   }
 
- /* cannot call start after stop
-  * either combine all nodes that can start and stop with gain nodes 
-  * and start means gain is set to 1
-  * and stop means gain is set to 0
-  */
   toggleStarted() {
-    if (!this._node?.start || !this.node?.stop) return false;
     if (this.started) {
       return this.stop();
     } else {
@@ -260,25 +251,31 @@ class RackNode<T extends RackAudioNode> {
   }
 
   removeInput(id: string): IONode<T> | undefined {
+    console.log(`[removeInput] ${id}`)
     const input = this.inputNodes.find((node) => node.connectionId === id);
 
     if (!input) {
+      console.log('[removeInput] not found')
       return undefined;
     }
 
-    this.inputNodes = this.inputNodes.filter((node) => node.connectionId === id);
+    console.log('[removeInput] removing inputs')
+    this.inputNodes = this.inputNodes.filter((node) => node.connectionId !== id);
     return input;
   }
 
   removeOutput(id: string): IONode<T> | undefined {
+    console.log(`[removeOutput] ${id}`)
     const output = this.outPutNodes.find((node) => node.connectionId === id);
 
     if (!output) {
+      console.log('[removeOutput] not found')
       return undefined;
     }
 
-    this.#disconnect(output);
-    this.outPutNodes = this.outPutNodes.filter((node) => node.connectionId === id);
+    // this.#disconnect(output);
+    console.log('[removeOutput] removing outputs')
+    this.outPutNodes = this.outPutNodes.filter((node) => node.connectionId !== id);
     return output;
   }
 }

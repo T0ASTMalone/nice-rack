@@ -1,28 +1,25 @@
-import { Play, Stop } from 'phosphor-react';
 import { useEffect, useState } from 'react';
+import { Play, Stop } from 'phosphor-react';
 
 import { RackNode, RackModuleUIProps, RackAudioNode } from '../../types/RackTypes';
 
-
-import './Module.css';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { ModuleVisualizer } from '../ModuleVisualizer';
 import { ModuleIO } from '../ModuleIO';
 import { ModuleParam } from '../ModuleParam';
+
 import useRackApi from '../../hooks/useRackApi';
 
-function Value({ node }: { node: RackNode<any> }) {
+import './Module.css';
+
+export function Value({ node }: { node: RackNode<any> }) {
   const [val, setVal] = useState();
+
   useEffect(() => {
     if (node) {
-      console.log('setting on value update cb');
-      node.onValueUpdate((val: any) => {
-        console.log('Value settin val');
-        setVal(val)
-      });
+      node.onValueUpdate((val: any) => setVal(val));
     }
   }, [node]);
-  console.log('value', val);
 
   return <span>{val}</span>
 }
@@ -53,7 +50,7 @@ function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
           <Value node={node} />
           <h3 className="module__io-name">{node.name}</h3>
 
-          {typeof node?.node?.start === 'function' && (
+          {/* typeof node?.node?.start === 'function' && ( */}
             <button 
               className="module__io-button"
               onClick={handleStartNode}
@@ -64,12 +61,12 @@ function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
                 <Play size={20} />
               )}
             </button>
-          )}
+          {/* ) */}
 
           <div className="module__io">
             {/* Main in */}
             <ModuleIO
-              count={1}
+              count={node.node?.numberOfInputs ?? 0}
               name="in"
               onClick={handleAddMainInput}
               output={inputs?.main}
@@ -110,3 +107,4 @@ function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
 }
 
 export default Module;
+

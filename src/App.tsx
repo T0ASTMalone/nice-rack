@@ -8,7 +8,7 @@ import 'overlayscrollbars/overlayscrollbars.css';
 function App() {
   return (
     <RackProvider>
-      <h2>Hello APp</h2>
+      <h2>Rack</h2>
       <div className="app">
         <ModuleList />
         <Rack />

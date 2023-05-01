@@ -2,13 +2,55 @@
   {
     "name": "Oscillator",
     "location": "src/modules/Oscillator",
-    "ui": "OscillatorModule",
-    "node": "RackOscillatorNode"
+    "ui": "Oscillator",
+    "node": "Oscillator"
   },
   {
-    "name": "PitchDetector",
-    "location": "src/modules/PitchDetector",
-    "ui": "PitchModule",
-    "node": "RackPitchProcessor"
+    "name": "PitchProcessor",
+    "location": "src/modules/PitchProcessor",
+    "ui": "PitchProcessor",
+    "node": "PitchProcessor"
+  },
+  {
+    "name": "BiquadFilter",
+    "location": "src/modules/BiquadFilter",
+    "ui": "BiquadFilterModule",
+    "node": "RackBiquadFilterNode"
+  },
+  {
+    "name": "Convolver",
+    "location": "src/modules/Convolver",
+    "ui": "ConvolverModule",
+    "node": "Convolver"
+  },
+  {
+    "name": "Gain",
+    "location": "src/modules/Gain",
+    "ui": "Gain",
+    "node": "Gain"
+  },
+  {
+    "name": "DynamicCompressor",
+    "location": "src/modules/DynamicCompressor",
+    "ui": "DynamicCompressor",
+    "node": "DynamicCompressor"
+  },
+  {
+    "name": "Panner",
+    "location": "src/modules/Panner",
+    "ui": "Panner",
+    "node": "Panner"
+  },
+  {
+    "name": "StereoPanner",
+    "location": "src/modules/StereoPanner",
+    "ui": "StereoPanner",
+    "node": "StereoPanner"
+  },
+  {
+    "name": "WaveShaper",
+    "location": "src/modules/WaveShaper",
+    "ui": "WaveShaper",
+    "node": "WaveShaper"
   }
 ]

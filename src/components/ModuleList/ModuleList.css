@@ -3,6 +3,10 @@
   flex-direction: column;
 }
 
+.module-list h3 {
+  margin-top: 0;
+}
+
 .module-list button {
   border-color: white;
   border-radius: 2px;

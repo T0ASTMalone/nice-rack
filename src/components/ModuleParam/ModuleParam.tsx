@@ -50,6 +50,7 @@ export default function ModuleParam<T extends RackAudioNode>({
         {name}:
         {renderParam} 
       </div>
+      {/* TODO: might not be needed for dropdown params i.e. Oscillator type params */}
       <ModuleIO
         count={1}
         output={input}

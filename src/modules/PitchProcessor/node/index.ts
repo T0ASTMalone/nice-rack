@@ -14,7 +14,7 @@ export default class PitchProcessorClass extends RackNode<PitchNode> {
     const url = URL.createObjectURL(blob);
 
     // const processorUrl = "PitchProcessor.js";
-    const response = await window.fetch("wasm-audio/wasm_audio_bg.wasm");
+    const response = await window.fetch("/pitch-processor/wasm_audio_bg.wasm");
     const wasmBytes = await response.arrayBuffer();
     const numAudioSamplesPerAnalysis = 1024;
 

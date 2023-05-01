@@ -7,7 +7,7 @@ import { useParams } from './ModuleHooks';
 export default function useRackApi<T extends RackAudioNode>(node: RackNode<T>) {
   const id = useId();
   const { values, setValues, params } = useParams(node.params);
-  const { patches } = useRackState();
+  const { patches, input, output } = useRackState();
   const dispatch = useRackDispatch();
   const [started, setStarted] = useState(node?.started);
 

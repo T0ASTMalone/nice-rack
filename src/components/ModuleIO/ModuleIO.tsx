@@ -11,11 +11,19 @@ interface ModuleIOProps<T extends RackAudioNode> {
  onClick: (name: string) => void;
  name?: string;
 }
-
+// TODO: make count a max number of io rather than the number of io  
 export default function ModuleIO<T extends RackAudioNode>({
   count, output, onClick, name
 }: ModuleIOProps<T>) {
   const id = useId();
+  // gib all connections
+  // get diff in connections
+  // render connections
+  // render remaing open io
+
+  if (count < 1) {
+    return null;
+  }
 
   return (
     <div>
