@@ -29,7 +29,7 @@ export interface IPatch {
   // node id
   [key: string] : { 
     inputs: { [key: string] : IONode[] }, 
-    outputs: { [key: string]: IONode },
+    outputs: { [key: string]: IONode[] },
   };
 }
 

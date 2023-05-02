@@ -7,25 +7,32 @@ export const createOutput = (
   state: RackState,
   param?: string,
 ): RackState => {
+  console.log('[createOutput] running');
   // find node
   const node = (state.destination && state.destination.id === id)
     ? state.destination 
     : state.modules.find((n) => n.id === id);
   
   // if !node return
-  if (!node) return state;
+  if (!node) { 
+    console.log('[createOutput] no node');
+    return state;
+  }
 
   let input;
 
   if (state.input) {
+    console.log('[createOutput] state has input');
     input = state.modules.find((n) => n.inputNodes.some((i) => i.connectionId === state.input)) 
 
     if (!input && state.destination && state.destination.inputNodes.some((n) => n.connectionId === state.input)) {
+      console.log('[createOutput] input is destination');
       input = state.destination 
     }
   } 
 
   if (input && input.id === node.id) {
+    console.log('[createOutput] is self');
     return state;
   }
 
@@ -42,6 +49,7 @@ export const createOutput = (
   );
 
   if (!inputNode || !input) {
+    console.log('[createOutput] setting output. Not creating connection');
     return { ...state, output: ioNode.connectionId };
   }
 
@@ -49,6 +57,7 @@ export const createOutput = (
   inputNode.param = ioNode.param;
   inputNode.paramName = ioNode.paramName;
 
+  console.log('[createOutput] updating state');
   return { 
     ...state,
     // clear inputs
@@ -61,7 +70,6 @@ export const createOutput = (
         ...state.patches[input.id], 
         inputs: {
           ...state.patches[input.id]?.inputs,
-          // [ioNode.paramName || 'main']: [inputNode],
           [ioNode.paramName || 'main']: [ ...(state.patches[node.id]?.inputs?.[ioNode.paramName || 'main'] ?? []), inputNode],
         }
       },
@@ -69,7 +77,7 @@ export const createOutput = (
         ...state.patches[node.id],
         outputs: {
           ...state.patches[node.id]?.outputs,
-          main: ioNode,
+          main: [...(state.patches[node.id]?.outputs?.main ?? []), ioNode],
         }
       }
     }
@@ -88,19 +96,25 @@ export const createInput = (
     : state.modules.find((n) => n.id === id);
   
   // if !node return
-  if (!node) return state;
+  if (!node) { 
+    console.log('[createInput] no node');
+    return state;
+  }
 
   let output;
 
   if (state.output) {
+    console.log('[createInput] state has input');
     output = state.modules.find((n) => n.outPutNodes.some((i) => i.connectionId === state.output));
 
     if (!output && state?.destination?.outPutNodes.some((n) => n.connectionId === state.output)) {
+      console.log('[createInput] input is destination');
       output = state.destination
     }
   }
 
   if (output && output.id === node.id) {
+    console.log('[createInput] is self');
     return state;
   }
 
@@ -116,6 +130,7 @@ export const createInput = (
   
 
   if (!outputNode || !output) {
+    console.log('[createInput] setting input. Not creating connection');
     return { ...state, input: ioNode.connectionId };
   }
 
@@ -130,6 +145,7 @@ export const createInput = (
     output.outputNode.connect(node.node);
   }
 
+  console.log('[createInput] updating state');
   return { 
     ...state,
     input: '',
@@ -140,7 +156,7 @@ export const createInput = (
         ...state.patches[output.id], 
         outputs: {
           ...state.patches[output.id]?.outputs,
-          main: outputNode
+          main: [...(state.patches[output.id]?.outputs?.main ?? []), outputNode]
         }
       },
       [node.id]: {
@@ -155,7 +171,7 @@ export const createInput = (
 };
 
 export const removeOutput = (
-  id: string, state: RackState, param?: string
+  id: string, state: RackState, connectionId: string, param?: string,
 ) => {                    
   let node = (state?.destination && state.destination.id === id)
     ? state.destination 

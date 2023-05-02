@@ -53,14 +53,14 @@ export default function PitchProcessor({
           count={2}
           name="in"
           onClick={handleAddMainInput}
-          output={inputs?.main}
+          outputs={inputs?.main}
         />
         {/* Main out */}
         <ModuleIO
           count={1}
           name="out"
           onClick={handleAddMainOutput}
-          output={Object.values(outputs ?? {})?.[0]}
+          outputs={outputs?.main}
         />
       </div>
       {node && <PitchReadout running={context.state === "running"} latestPitch={latestPitch} />}
