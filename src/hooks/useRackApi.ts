@@ -48,7 +48,6 @@ export default function useRackApi<T extends RackAudioNode>(node: RackNode<T>) {
     */
   const handleAddMainInput = (connectionId: string, name: string) => { 
     const p = patches[node?.id]?.inputs?.main;
-
     const existing = p?.find(c => c.connectionId === connectionId);
     
     dispatch({ 
@@ -65,12 +64,13 @@ export default function useRackApi<T extends RackAudioNode>(node: RackNode<T>) {
     * 2. "in" for the node's input
     * 3. "out" for the node's output
     */
-  const handleAddMainOutput = (name: string) => {
+  const handleAddMainOutput = (connectionId: string, param: string) => {
+    const p = patches[node?.id]?.outputs?.[param || 'main'];
+    const existing = p?.find(c => c.connectionId === connectionId);
+
     dispatch({ 
-      actionType: ((Object.keys(patches[node?.id]?.outputs ?? {}).length === 0)
-      ? Actions.AddOutput 
-      : Actions.RemoveOutput),
-      message: { outputId: node.id, param: name }
+      actionType: (!existing ? Actions.AddOutput : Actions.RemoveOutput),
+      message: { outputId: node.id, param, connectionId }
     });
   }
 

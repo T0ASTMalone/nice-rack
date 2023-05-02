@@ -9,7 +9,7 @@ interface ModuleIOProps<T extends RackAudioNode> {
  count: number;
  output?: IONode<T>;
  outputs?: IONode<T>[];
- onClick: (name: string) => void;
+ onClick: (connectionId: string, param?: string) => void;
  name?: string;
 }
 // TODO: make count a max number of io rather than the number of io  
@@ -42,7 +42,7 @@ export default function ModuleIO<T extends RackAudioNode>({
         <button
           className="module-io__button"
           key={o.connectionId}
-          onClick={() => onClick(o.connectionId)}
+          onClick={() => onClick(o.connectionId, o?.paramName)}
         >
           <RadioButton size={20} color={o.color} />
         </button>

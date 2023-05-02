@@ -39,7 +39,7 @@ const rackReducer = (state: RackState, action: RackAction): RackState => {
     case Actions.RemoveOutput: 
       return {...removeOutput(action.message.outputId, state, action.message.connectionId, action.message.param)}
     case Actions.RemoveInput: 
-      return {...removeInput(action.message.inputId, state, action.message.param)}
+      return {...removeInput(action.message.inputId, state, action.message.connectionId, action.message.param)}
     case Actions.Init: 
       const context = new AudioContext();
       const destination = new RackDestinationNode(context);
