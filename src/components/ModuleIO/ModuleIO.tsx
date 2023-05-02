@@ -10,11 +10,12 @@ interface ModuleIOProps<T extends RackAudioNode> {
  output?: IONode<T>;
  outputs?: IONode<T>[];
  onClick: (connectionId: string, param?: string) => void;
+ label?: string;
  name?: string;
 }
 // TODO: make count a max number of io rather than the number of io  
 export default function ModuleIO<T extends RackAudioNode>({
-  count, output, outputs, onClick, name
+  count, output, outputs, onClick, name, label
 }: ModuleIOProps<T>) {
   const id = useId();
   // gib all connections
@@ -28,16 +29,7 @@ export default function ModuleIO<T extends RackAudioNode>({
 
   return (
     <div>
-      {name && <p className="module-io__name">{name}</p>}
-      {[...new Array(count - (outputs?.length ?? 0))].map((_, i) => (
-        <button 
-          className="module-io__button"
-          key={`${id}-${i}`}
-          onClick={() => onClick(output?.paramName ?? '')}
-        >
-          <RadioButton size={20} color={output?.color} />
-        </button>
-      ))}
+      {name && <p className="module-io__name">{label}</p>}
       {outputs?.map((o) => (
         <button
           className="module-io__button"
@@ -45,6 +37,15 @@ export default function ModuleIO<T extends RackAudioNode>({
           onClick={() => onClick(o.connectionId, o?.paramName)}
         >
           <RadioButton size={20} color={o.color} />
+        </button>
+      ))}
+      {[...new Array(count - (outputs?.length ?? 0))].map((_, i) => (
+        <button
+          className="module-io__button"
+          key={`${id}-${i}`}
+          onClick={() => onClick('', name ?? '')}
+        >
+          <RadioButton size={20} color={output?.color} />
         </button>
       ))}
     </div>

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useMinMax, useStep } from "../../hooks/ModuleHooks";
 import { IONode, ParamOptions, RackAudioNode } from "../../types/RackTypes";
 import InputValue from "../InputValue/InputValue";
@@ -11,7 +11,7 @@ interface ModuleParamProps<T extends RackAudioNode> {
   param: AudioParam | string;
   onChange?: (name: string, val: number | string) => void;
   types?: string[];
-  input?: IONode<T>
+  input?: IONode<T>[];
   value?: number;
   onClick: (name: string) => void;
   options?: ParamOptions,
@@ -21,12 +21,13 @@ interface ModuleParamProps<T extends RackAudioNode> {
 export default function ModuleParam<T extends RackAudioNode>({ 
   name, param, onChange, onClick, types, input, value, options, nodeId,
 }: ModuleParamProps<T>) {
+  const [type, setType] = useState<string>(typeof param === 'string' ? param : '');
   const step = useStep(param);
   const { min, max } = useMinMax(name, param, options);
   
   const renderParam = useMemo(() => {
     if (typeof param === 'string') {
-      return <p style={{ margin: "0 0 0 12px" }}>param</p>;
+      return <p style={{ margin: "0 0 0 12px" }}>{type}</p>;
     } else {
       return (
         <InputValue
@@ -38,31 +39,45 @@ export default function ModuleParam<T extends RackAudioNode>({
         />
       ); 
     }
-  }, [param, min, max, value, step])
+  }, [param, min, max, value, step, type])
 
   const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange?.(name, parseFloat(e.target.value));
   }
 
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => { 
+    setType(e.target.value);
+    onChange?.(name, e.target.value);
+  }
+
   return (
     <div style={{margin: "12px 0"}}>
-      <div style={{ display: "flex", color: `#${input?.color}` }}>
+      <div style={{ display: "flex" }}>
         {name}:
         {renderParam} 
       </div>
-      {/* TODO: might not be needed for dropdown params i.e. Oscillator type params */}
-      <ModuleIO
-        count={1}
-        output={input}
-        onClick={() => onClick(name)}
-      />
+      {typeof param !== 'string' && (
+        <ModuleIO
+          count={2}
+          name={name}
+          outputs={input}
+          onClick={onClick}
+        />
+      )}
       {typeof param === 'string' ? (
         <select 
-          onChange={(e) => onChange?.(name, e.target.value)} 
+          onChange={handleTypeChange} 
+          value={type}
         >
           {types?.map((type) => (
-            <option key={type} value={type}>{type}</option>)
-          )}
+            <option 
+              //selected={param === type}
+              key={type}
+              value={type}
+            >
+              {type}
+            </option>
+          ))}
         </select>
        ) : (
         <input 

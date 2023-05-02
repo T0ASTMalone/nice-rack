@@ -67,14 +67,16 @@ function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
             {/* Main in */}
             <ModuleIO
               count={node.node?.numberOfInputs ?? 0}
-              name="in"
+              label="in"
+              name="main"
               onClick={handleAddMainInput}
               outputs={inputs?.main}
             /> 
             {/* Main out */}
             <ModuleIO
               count={node.node?.numberOfOutputs ?? 0}
-              name="out"
+              label="out"
+              name="main"
               onClick={handleAddMainOutput}
               outputs={outputs?.main}
             /> 
@@ -89,6 +91,7 @@ function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
                 name={name}
                 param={param}
                 value={param?.value}
+                typeVal={param?.type}
                 types={node?.paramOptions?.type?.values}
                 nodeId={node.id}
                 input={inputs
