@@ -61,7 +61,8 @@ export const createOutput = (
         ...state.patches[input.id], 
         inputs: {
           ...state.patches[input.id]?.inputs,
-          [ioNode.paramName || 'main']: inputNode,
+          // [ioNode.paramName || 'main']: [inputNode],
+          [ioNode.paramName || 'main']: [ ...(state.patches[node.id]?.inputs?.[ioNode.paramName || 'main'] ?? []), inputNode],
         }
       },
       [node.id]: {
@@ -89,14 +90,15 @@ export const createInput = (
   // if !node return
   if (!node) return state;
 
-  // FIXME: gross   
-  const output = state.output
-    ? state.modules.find((n) => n.outPutNodes.some((i) => i.connectionId === state.output))
-      ?? (state.destination && state.destination.outPutNodes
-          .some((n) => n.connectionId === state.output) 
-        ? state.destination 
-        : undefined)
-    : undefined;
+  let output;
+
+  if (state.output) {
+    output = state.modules.find((n) => n.outPutNodes.some((i) => i.connectionId === state.output));
+
+    if (!output && state?.destination?.outPutNodes.some((n) => n.connectionId === state.output)) {
+      output = state.destination
+    }
+  }
 
   if (output && output.id === node.id) {
     return state;
@@ -145,7 +147,7 @@ export const createInput = (
         ...state.patches[node.id],
         inputs: {
           ...state.patches[node.id]?.inputs,
-          [ioNode.paramName || 'main']: ioNode,
+          [ioNode.paramName || 'main']: [ ...(state.patches[node.id]?.inputs?.[ioNode.paramName || 'main'] ?? []), ioNode],
         }
       }
     }
