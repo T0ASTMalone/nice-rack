@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useEffect, useReducer } from 'react';
+import React, { createContext, useContext, useReducer } from 'react';
 import { Actions, RackAction, RackState } from '../types/RackContextTypes';
 import { RackDestinationNode } from '../types/RackTypes';
-import { createInput, createOutput, removeInput, removeOutput } from './RackContextReducers';
+import { createInput, createOutput, removeInput, removeModule, removeOutput } from './RackContextReducers';
 
 const RackStateContext = createContext<RackState | undefined>(undefined);
 const RackDispatchContext = createContext<React.Dispatch<RackAction> | undefined>(undefined);
@@ -28,10 +28,16 @@ const rackReducer = (state: RackState, action: RackAction): RackState => {
       // TODO: remove any patches with this module
       // TODO: disconnect from AudioContext if connected
       // remove input / output if part of this module
+      if (!state.modules.some((mod) => mod.id === action.message.moduleId)) {
+        return state;
+      }
+      /*
       return {
         ...state,
         modules: [...state.modules.filter((mod) => mod.id !== action.message.moduleId)],
       };
+      */
+      return {...removeModule(state, action.message.moduleId)};
     case Actions.AddOutput:
       return {...createOutput(action.message.outputId, state, action.message.param)}
     case Actions.AddInput:

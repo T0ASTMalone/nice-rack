@@ -51,14 +51,16 @@ export default function PitchProcessor({
         {/* Main in */}
         <ModuleIO
           count={2}
-          name="in"
+          name="main"
+          label="in"
           onClick={handleAddMainInput}
           outputs={inputs?.main}
         />
         {/* Main out */}
         <ModuleIO
           count={1}
-          name="out"
+          label="out"
+          name="main"
           onClick={handleAddMainOutput}
           outputs={outputs?.main}
         />

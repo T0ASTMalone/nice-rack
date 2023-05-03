@@ -34,6 +34,7 @@ export default class Convolver extends RackNode<ConvolverNode> {
   async init(opt?: ConvolverOptions) {
     this.node = new ConvolverNode(this.context, opt);
     this.node.buffer = this.impulsResponse(4, 4, false);
+    this.numberOfInputs = 10;
     return this;
   }
 }

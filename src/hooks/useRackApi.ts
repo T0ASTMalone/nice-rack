@@ -46,13 +46,15 @@ export default function useRackApi<T extends RackAudioNode>(node: RackNode<T>) {
     * 2. "in" for the node's input
     * 3. "out" for the node's output
     */
-  const handleAddMainInput = (connectionId: string, name?: string) => { 
+  const handleAddMainInput = (connectionId: string, param?: string) => { 
     const p = patches[node?.id]?.inputs?.main;
     const existing = p?.find(c => c.connectionId === connectionId);
-    
+    console.log(`[handleAddMainInput] ${
+      existing ? 'removing main input' : 'adding main input'
+    } for ${node.id} ${param}`);
     dispatch({ 
       actionType: (!existing ? Actions.AddInput : Actions.RemoveInput),
-      message: { inputId: node.id, connectionId, param: name },
+      message: { inputId: node.id, connectionId, param },
     });
   }
 
@@ -65,9 +67,11 @@ export default function useRackApi<T extends RackAudioNode>(node: RackNode<T>) {
     * 3. "out" for the node's output
     */
   const handleAddMainOutput = (connectionId: string, param?: string) => {
-    const p = patches[node?.id]?.outputs?.[param || 'main'];
+    const p = patches[node?.id]?.outputs?.main;
     const existing = p?.find(c => c.connectionId === connectionId);
-
+    console.log(`[handleAddMainOutput] ${
+      existing ? 'removing main output' : 'adding main output'
+    } for ${node.id} ${param}`);
     dispatch({ 
       actionType: (!existing ? Actions.AddOutput : Actions.RemoveOutput),
       message: { outputId: node.id, param, connectionId }
@@ -88,9 +92,11 @@ export default function useRackApi<T extends RackAudioNode>(node: RackNode<T>) {
     * 3. "out" for the node's output
     */
   const handleParamClick = (connectionId: string, param?: string) => {
-    const p = patches[node?.id]?.outputs?.[param || 'main'];
+    const p = patches[node?.id]?.inputs?.[param || 'main'];
     const existing = p?.find(c => c.connectionId === connectionId);
-
+    console.log(`[handleParamClick] ${
+      existing ? 'removing param input' : 'adding param input'
+    } for ${node.id} ${param}`);
     dispatch({ 
       actionType: (!existing ? Actions.AddInput : Actions.RemoveInput),
       message: { inputId: node.id, param, connectionId }
@@ -118,4 +124,15 @@ export default function useRackApi<T extends RackAudioNode>(node: RackNode<T>) {
     handleParamClick,
     handleStartNode,
   }
+}
+
+export const useRemoveModule = () => {
+  const dispatch = useRackDispatch();
+
+  return (moduleId: string) => {
+    dispatch({
+      actionType: Actions.RemoveModule,
+      message: { moduleId },
+    });
+  };
 }

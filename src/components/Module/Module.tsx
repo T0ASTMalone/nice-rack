@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Play, Stop } from 'phosphor-react';
+import { Play, Stop, X } from 'phosphor-react';
+import { motion } from 'framer-motion';
 
 import { RackNode, RackModuleUIProps, RackAudioNode } from '../../types/RackTypes';
 
@@ -8,9 +9,14 @@ import { ModuleVisualizer } from '../ModuleVisualizer';
 import { ModuleIO } from '../ModuleIO';
 import { ModuleParam } from '../ModuleParam';
 
-import useRackApi from '../../hooks/useRackApi';
+import useRackApi, { useRemoveModule } from '../../hooks/useRackApi';
 
 import './Module.css';
+
+const fadeIn = {
+  rest: { opacity: 0, y: -50, transition: { delay: 3 } },
+  hover: { opacity: 1, y: 0 },
+};
 
 export function Value({ node }: { node: RackNode<any> }) {
   const [val, setVal] = useState();
@@ -37,9 +43,19 @@ function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
     handleParamClick, 
     handleAddMainOutput, 
   } = useRackApi(node);
+  const removeModule = useRemoveModule();
 
   return (
-    <div className="module">
+    <motion.div initial="rest" whileHover="hover" className="module">
+      <div className="module__controls">
+        <motion.button
+          onClick={() => removeModule(node.id)}
+          className="module__remove-btn"
+          variants={fadeIn}
+        >
+          <X width={20} height={20}/>
+        </motion.button>
+      </div>
       <OverlayScrollbarsComponent 
         options={{ scrollbars: { autoHide: 'scroll' } }} 
         style={{ maxHeight: "100%" }}
@@ -50,7 +66,7 @@ function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
           <Value node={node} />
           <h3 className="module__io-name">{node.name}</h3>
 
-          {/* typeof node?.node?.start === 'function' && ( */}
+          {node.name !== 'Destination' && (
             <button 
               className="module__io-button"
               onClick={handleStartNode}
@@ -61,12 +77,15 @@ function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
                 <Play size={20} />
               )}
             </button>
-          {/* ) */}
+          )} 
 
           <div className="module__io">
             {/* Main in */}
             <ModuleIO
-              count={node.node?.numberOfInputs ?? 0}
+              // either the one set by the init fn on the RackNode 
+              // or the default set by the AudioNode or
+              // nothing
+              count={node?.numberOfInputs ?? node.node?.numberOfInputs ?? 0}
               label="in"
               name="main"
               onClick={handleAddMainInput}
@@ -74,7 +93,7 @@ function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
             /> 
             {/* Main out */}
             <ModuleIO
-              count={node.node?.numberOfOutputs ?? 0}
+              count={node?.numberOfOutputs ?? node.node?.numberOfOutputs ?? 0}
               label="out"
               name="main"
               onClick={handleAddMainOutput}
@@ -91,7 +110,6 @@ function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
                 name={name}
                 param={param}
                 value={param?.value}
-                typeVal={param?.type}
                 types={node?.paramOptions?.type?.values}
                 nodeId={node.id}
                 input={inputs
@@ -105,7 +123,7 @@ function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
           </div>
         </div>
       </OverlayScrollbarsComponent>
-    </div>
+    </motion.div>
   );
 }
 

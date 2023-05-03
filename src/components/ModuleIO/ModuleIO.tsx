@@ -39,15 +39,15 @@ export default function ModuleIO<T extends RackAudioNode>({
           <RadioButton size={20} color={o.color} />
         </button>
       ))}
-      {[...new Array(count - (outputs?.length ?? 0))].map((_, i) => (
+      {/* [...new Array(count - (outputs?.length ?? 0))].map((_, i) => ( */}
+      {count > (outputs?.length ?? 0) && (
         <button
           className="module-io__button"
-          key={`${id}-${i}`}
           onClick={() => onClick('', name ?? '')}
         >
           <RadioButton size={20} color={output?.color} />
         </button>
-      ))}
+      )}
     </div>
   )
 }

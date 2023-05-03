@@ -34,3 +34,21 @@
 .module__io-name {
   margin: 0 0 8px 0;
 }
+
+.module__controls {
+  position: relative;
+  width: 100%;
+}
+
+.module__remove-btn {
+  position: absolute;
+  right: 0;
+  z-index: 1;
+  margin-right: 8px;
+  margin-top: 8px;
+  padding: 0px;
+  border-radius: 50%;
+  display: flex;
+  justify-items: center;
+  justify-content: center;
+}

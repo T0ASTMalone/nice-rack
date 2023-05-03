@@ -64,12 +64,10 @@ interface RackNodeOptions {
   name: string;
   paramOptions?: {[key: string]: ParamOptions }
 }
-// TODO: implement interface for the class to implement 
-// interface Foo {
-//    new(n: string): bar;
-// }
-// TODO: update to keep track of started state
+
 // TODO: subscription to state that needs to be updated in ui (inputNodes/OutputNode, stated state)
+// this will help when modulating a param and seeing it's value update
+// in the ui
 class RackNode<T extends RackAudioNode> {
   readonly id: string;
 
@@ -82,6 +80,9 @@ class RackNode<T extends RackAudioNode> {
   readonly paramOptions?: {[key: string]: ParamOptions };
 
   readonly analyzer?: AnalyserNode;
+
+  #numberOfInputs?: number;
+  #numberOfOutputs?: number;
 
   _node?: T;
   
@@ -101,14 +102,8 @@ class RackNode<T extends RackAudioNode> {
     this.outPutNodes = [];
     this.started = false;
     this.context = context;
-    /*
-    this._node = node;
-    this.params = getAudioParams(node);
-    */
     this.name = opt?.name;
     this.paramOptions = opt?.paramOptions;
-    
-    
 
     this.outputNode = new GainNode(context, { gain: 0 });
 
@@ -118,7 +113,6 @@ class RackNode<T extends RackAudioNode> {
       this.outputNode.connect(analyzerNode);
     }
     this.onValueUpdateCallBacks = [];
-
   }
 
   set type(value: any) {
@@ -135,6 +129,23 @@ class RackNode<T extends RackAudioNode> {
   get type() {
     return this._node?.type ?? this.type;
   }
+
+  protected set numberOfInputs(num: number | undefined) {
+    this.#numberOfInputs = num;
+  }
+
+  get numberOfInputs(): number | undefined {
+    return this.#numberOfInputs;
+  }
+
+  protected set numberOfOutputs(num: number | undefined) {
+    this.#numberOfOutputs = num;
+  }
+
+  get numberOfOutputs(): number | undefined {
+    return this.#numberOfOutputs;
+  }
+
 
   set node(node) {
     console.log('running setter');
@@ -287,6 +298,7 @@ class RackDestinationNode extends RackNode<AudioDestinationNode> {
 
   async init() {
     this.node = this.context.destination
+    this.numberOfInputs = 10;
     return this;
   }
 }

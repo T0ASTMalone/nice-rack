@@ -3,6 +3,36 @@ import { v4 as uuid } from 'uuid';
 import { RackState } from "../types/RackContextTypes";
 import { IONode } from "../types/RackTypes";
 
+export const removeModule = (state: RackState, moduleId: string): RackState => {
+  // remove all patches 
+  const inputs = Object.entries(state.patches[moduleId]?.inputs ?? {});
+  const outputs = Object.entries(state.patches[moduleId]?.outputs ?? {});
+
+  let newState = state;
+
+  console.log('[removeModule] removing module inputs')
+  for (let i = 0; i < inputs.length; i++) {
+    let [key, value] = inputs[i];
+    for (let j = 0; j < value.length; j++) {
+      console.log('[removeModule] removing module input', value[j].node.id, value[j].connectionId, value[j].paramName)
+      newState = { ...removeInput(moduleId, newState, value[j].connectionId, value[j].paramName) };
+    }
+  }
+
+  console.log('[removeModule] removing module outputs')
+  for (let i = 0; i < outputs.length; i++) {
+    let [key, value] = outputs[i];
+    for (let j = 0; j < value.length; j++) {
+      console.log('[removeModule] removing module outputs', moduleId, value[j].connectionId, 'main')
+      newState = { ...removeOutput(moduleId, newState, value[j].connectionId) };
+    }
+  }
+
+  // TO Test removing connections 
+  // return { ...newState };
+  return {...newState, modules: [...newState.modules.filter((m) => m.id !== moduleId)] };
+}
+
 export const createOutput = (
   id: string,
   state: RackState,
@@ -179,13 +209,14 @@ export const removeOutput = (
   let node = (state?.destination && state.destination.id === id)
     ? state.destination 
     : state.modules.find((node) => node.id === id);
+    // : state.modules.find((node) => (node.id === id && node.outPutNodes.some((n) => n.connectionId === connectionId)));
 
   if (!node) {
     console.log('[RackReducers] node not found');
     return state;
   }
   
-  let output: IONode<any> = state.patches?.[id]?.outputs?.[param || 'main']
+  let output: IONode<any> = state.patches?.[id]?.outputs?.main
     ?.find((o) => o.connectionId === connectionId);
   
   if (!output?.node) {
@@ -194,10 +225,10 @@ export const removeOutput = (
   }
   
   const outputInputs: IONode<any>[] = state.patches?.[output.node.id].inputs?.[param || 'main']
-    ?.filter((p) => p.connectionId !== connectionId);
+    ?.filter((p) => p.connectionId !== connectionId) ?? [];
 
-  const inputOutputs: IONode<any>[] = state?.patches?.[node.id]?.outputs?.[param || 'main']
-    ?.filter((p) => p.connectionId !== connectionId);
+  const inputOutputs: IONode<any>[] = state?.patches?.[node.id]?.outputs?.main
+    ?.filter((p) => p.connectionId !== connectionId) ?? [];
 
   // TODO: remove node from list of ionodes (call remove output) in racknode class
   node.outputNode.disconnect();
@@ -216,7 +247,7 @@ export const removeOutput = (
           outputs: {
             // ...inputOutputs
             ...state.patches[node.id]?.outputs,
-            [param || 'main'] : [...inputOutputs]
+            main : [...inputOutputs]
           }
         }
       },
@@ -225,7 +256,7 @@ export const removeOutput = (
         ...{
           inputs: {
             ...state.patches[output.node.id]?.inputs,
-            [param || 'main'] : [...outputInputs]
+            [output?.paramName || 'main'] : [...outputInputs]
           } 
         }
       }
@@ -253,11 +284,11 @@ export const removeInput = (
     return state;
   }
 
-  const inputOutputs = state.patches?.[input.node.id].outputs?.[param || 'main']
-    ?.filter((p) => p.connectionId !== connectionId);
+  const inputOutputs = state.patches?.[input.node.id].outputs?.main
+    ?.filter((p) => p.connectionId !== connectionId) ?? [];
 
   const nodeInputs = state.patches?.[node.id].inputs?.[param || 'main']
-    ?.filter((p) => p.connectionId !== connectionId);
+    ?.filter((p) => p.connectionId !== connectionId) ?? [];
 
   console.log('[RackReducers] disconnecting')
   input.node.outputNode.disconnect();
@@ -283,7 +314,7 @@ export const removeInput = (
         ...{
           outputs: {
             ...state.patches[input.node.id].outputs,
-            [param || 'main'] : [...inputOutputs]
+            main : [...inputOutputs]
           } 
         }
       }
