@@ -1,5 +1,28 @@
 import { RackNode } from "../../../types/RackTypes";
 
+// TODO: finish implementing and use to add custom audio params to racknodes 
+// on init or in constructor
+class RackAudioParam implements AudioParam {
+  readonly defaultValue: number;
+  readonly value: number;
+  readonly maxValue: number;
+  readonly minValue: number;
+  readonly automationRate: AutomationRate;
+
+  constructor(defaultValue: number, value: number, maxValue: number, minValue: number, automationRate: AutomationRate) {
+    this.defaultValue = defaultValue;
+    this.value = value;
+    this.maxValue = maxValue;
+    this.minValue = minValue;
+    this.automationRate = automationRate;
+  }
+  
+  cancelAndHoldAtTime(cancelTime: number): AudioParam {
+    // return new AudioParam().cancelAndHoldAtTime(cancelTime);
+  }
+
+}
+
 // modules.json node name
 export default class Convolver extends RackNode<ConvolverNode> {
   constructor(context: AudioContext) {
