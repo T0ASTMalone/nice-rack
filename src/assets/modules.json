@@ -24,6 +24,12 @@
     "node": "Convolver"
   },
   {
+    "name": "Delay",
+    "location": "src/modules/Delay",
+    "ui": "Delay",
+    "node": "Delay"
+  },
+  {
     "name": "Gain",
     "location": "src/modules/Gain",
     "ui": "Gain",
@@ -52,5 +58,17 @@
     "location": "src/modules/WaveShaper",
     "ui": "WaveShaper",
     "node": "WaveShaper"
+  },
+  {
+    "name": "ChannelMerger",
+    "location": "src/modules/ChannelMerger",
+    "ui": "ChannelMerger",
+    "node": "ChannelMerger"
+  },
+  { 
+    "name": "ConstantSource",
+    "location": "src/modules/ConstantSource",
+    "ui": "ConstantSource",
+    "node": "ConstantSource"
   }
 ]

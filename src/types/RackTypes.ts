@@ -86,7 +86,7 @@ class RackNode<T extends RackAudioNode> {
 
   _node?: T;
   
-  params?: Map<string, AudioParam>;
+  protected params?: Map<string, AudioParam> = new Map();
   // not being used yet
   onValueUpdateCallBacks?: ((val: any) => void)[]
 
@@ -104,7 +104,6 @@ class RackNode<T extends RackAudioNode> {
     this.context = context;
     this.name = opt?.name;
     this.paramOptions = opt?.paramOptions;
-
     this.outputNode = new GainNode(context, { gain: 0 });
 
     if (this.name !== 'Destination') {
@@ -152,7 +151,6 @@ class RackNode<T extends RackAudioNode> {
     if (!node) return;
     this._node = node;
     this.params = getAudioParams(node);
-    
     if (this.name !== 'Destination' && this.analyzer) {
       this._node.connect(this.analyzer);
     }
@@ -289,6 +287,82 @@ class RackNode<T extends RackAudioNode> {
     this.outPutNodes = this.outPutNodes.filter((node) => node.connectionId !== id);
     return output;
   }
+
+  update() {
+    throw Error("Implement me!")
+  }
+}
+
+export class RackAudioParam<T extends RackAudioNode> implements AudioParam {
+  readonly name: string;
+  readonly defaultValue: number;
+  readonly maxValue: number;
+  readonly minValue: number;
+  readonly automationRate: AutomationRate;
+  readonly _node: RackNode<T>;
+  _value: number = 0;
+
+  constructor(
+    name: string,
+    defaultValue: number,
+    value: number, 
+    maxValue: number, 
+    minValue: number, 
+    automationRate: AutomationRate, 
+    node: RackNode<T>
+  ) {
+    this._node = node;
+    this.name = name;
+    this.defaultValue = defaultValue;
+    this.value = value;
+    this.maxValue = maxValue;
+    this.minValue = minValue;
+    this.automationRate = automationRate;
+  }
+
+  get value() {
+    return this._value;
+  }
+
+  set value(val: number) {
+    this._value = val;
+    if (this._node) {
+      this._node.update();
+    }
+  }
+
+  /* Non Functional just for types */
+  setValueAtTime(value: number, startTime: number): AudioParam {
+    return this;    
+  }
+
+  setTargetAtTime(target: number, startTime: number, timeConstant: number): AudioParam {
+    return this;    
+  }
+
+  linearRampToValueAtTime(value: number, endTime: number): AudioParam {
+    let a = new AudioParam();
+    return this;    
+  }
+
+  cancelAndHoldAtTime(cancelTime: number): AudioParam {
+    return this;    
+  }
+
+  cancelScheduledValues(cancelTime: number): AudioParam {
+    return this;    
+  }
+
+  setValueCurveAtTime(values: number[] | Float32Array, startTime: number, duration: number): AudioParam;
+  setValueCurveAtTime(values: Iterable<number>, startTime: number, duration: number): AudioParam;
+  setValueCurveAtTime(values: unknown, startTime: unknown, duration: unknown): AudioParam {
+    return this;    
+  }
+
+  exponentialRampToValueAtTime(value: number, endTime: number): AudioParam {
+    return this;    
+  }
+  /* End Non Functional */
 }
 
 class RackDestinationNode extends RackNode<AudioDestinationNode> {

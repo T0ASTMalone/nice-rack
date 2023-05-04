@@ -1,40 +1,14 @@
-import { RackNode } from "../../../types/RackTypes";
-
-// TODO: finish implementing and use to add custom audio params to racknodes 
-// on init or in constructor
-class RackAudioParam implements AudioParam {
-  readonly defaultValue: number;
-  readonly value: number;
-  readonly maxValue: number;
-  readonly minValue: number;
-  readonly automationRate: AutomationRate;
-
-  constructor(defaultValue: number, value: number, maxValue: number, minValue: number, automationRate: AutomationRate) {
-    this.defaultValue = defaultValue;
-    this.value = value;
-    this.maxValue = maxValue;
-    this.minValue = minValue;
-    this.automationRate = automationRate;
-  }
-  
-  cancelAndHoldAtTime(cancelTime: number): AudioParam {
-    // return new AudioParam().cancelAndHoldAtTime(cancelTime);
-  }
-
-}
+import { RackAudioParam, RackNode } from "../../../types/RackTypes";
 
 // modules.json node name
 export default class Convolver extends RackNode<ConvolverNode> {
+  timer: number | undefined;
   constructor(context: AudioContext) {
-    super(context, { 
-      name: 'Convolver'
-      // TODO: add params
-    });
+    super(context, { name: 'Convolver' });
   }
 
   impulsResponse(duration: number, decay: number, reverse: boolean) {
     let sampleRate = this.context.sampleRate;
-    console.log('sampleRate', sampleRate);
     let length = sampleRate * duration;
     let impulse = this.context.createBuffer(2, length, sampleRate);
     let impulseL = impulse.getChannelData(0);
@@ -51,12 +25,33 @@ export default class Convolver extends RackNode<ConvolverNode> {
     }
 
     return impulse;
+  }
 
+  update() {
+    // debouncing for now since updating the impuls response is pretty expensive
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+    this.timer = setTimeout(() => {
+      if (this.node) {
+        this.node.buffer = this.impulsResponse(
+          this.params?.get('duration')?.value ?? 4, 
+          this.params?.get('decay')?.value ?? 4, 
+          false
+        );
+      }
+    }, 200);
   }
 
   async init(opt?: ConvolverOptions) {
     this.node = new ConvolverNode(this.context, opt);
-    this.node.buffer = this.impulsResponse(4, 4, false);
+    // setting up custom params
+    if (!this.params) {
+      this.params = new Map();
+    }
+    this.params.set('duration', new RackAudioParam('duration', 1, 4, 10, .01, 'a-rate', this));
+    this.params.set('decay', new RackAudioParam('decay', 1, 4, 5, .01, 'a-rate', this));
+    this.update();
     this.numberOfInputs = 10;
     return this;
   }

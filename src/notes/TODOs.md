@@ -5,8 +5,9 @@ TODOS t0ast-rack
 - [ ] add logger
 - [ ] refactor useRackAPI into seperate hooks for each dispatch call / state 
 - [x] fix labels for Pitch Processor
-- [ ] setup resonable value ranges and input limits for params (in progress)
+- [x] setup resonable value ranges and input limits for params (in progress)
 - [x] add animation library (framer motion or something)
+- [ ] implement waveshaper curve and oversample values 
 - [ ] deploy to prod
 - [ ] add adcents
 - [ ] create ui's for some of the modules (eq visualization etc.)
