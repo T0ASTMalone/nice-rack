@@ -9,7 +9,6 @@ export const useStep = (param: string | AudioParam) => {
     if (param.maxValue === 3.4028234663852886e+38) {
       console.log('[useStep] param.max ', param.maxValue);
     }
-    console.log('[useStep] greater than 100 ', (param.maxValue - param.minValue >= 100))
     return param.maxValue - param.minValue <= 100 ? 0.001 : 0.01;    
   }, [param]);
 }
@@ -27,14 +26,11 @@ export const useParams = (paramMap?: Map<string, AudioParam>) => {
   return { values: paramValues, setValues: setParamValues, params };
 }
 
-export const useMinMax = (
-  name: string, param: AudioParam | string, opt?: ParamOptions
-) => {
+export const useMinMax = (name: string, param: AudioParam | string, opt?: ParamOptions) => {
   return useMemo(() => {
     if (typeof param === 'string') {
       return { min: undefined, max: undefined };
     }
-
     return {
       min: opt?.min ?? param.minValue,
       max: opt?.max ?? param.maxValue,

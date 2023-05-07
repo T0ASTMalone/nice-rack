@@ -3,8 +3,8 @@ import { useMinMax, useStep } from "../../hooks/ModuleHooks";
 import { IONode, ParamOptions, RackAudioNode } from "../../types/RackTypes";
 import InputValue from "../InputValue/InputValue";
 
-import Constants from '../../constants';
 import { ModuleIO } from "../ModuleIO";
+import Constants from "../../constants";
 
 interface ModuleParamProps<T extends RackAudioNode> {
   name: string; 
@@ -24,6 +24,19 @@ export default function ModuleParam<T extends RackAudioNode>({
   const [type, setType] = useState<string>(typeof param === 'string' ? param : '');
   const step = useStep(param);
   const { min, max } = useMinMax(name, param, options);
+  // const { min, max } = useMinMax(name, param, options, true);
+  const step2 = useMemo(() => {
+    if (name !== 'frequency') {
+      return step;
+    }
+    if (typeof value === 'number') { 
+      if (value > 1000) {
+        return 100
+      }
+      return 1
+    }
+    return 0;
+  }, [value, step])
   
   const renderParam = useMemo(() => {
     if (typeof param === 'string') {
@@ -49,7 +62,7 @@ export default function ModuleParam<T extends RackAudioNode>({
     setType(e.target.value);
     onChange?.(name, e.target.value);
   }
-
+    
   return (
     <div style={{margin: "12px 0"}}>
       <div style={{ display: "flex" }}>
@@ -90,8 +103,8 @@ export default function ModuleParam<T extends RackAudioNode>({
             ? Constants.MAX_VALUE 
             : max 
           )}
-          value={value?.toFixed(3)}
-          step={step}
+          value={value}
+          step={step2}
           onChange={handleRangeChange}
         />
       )}

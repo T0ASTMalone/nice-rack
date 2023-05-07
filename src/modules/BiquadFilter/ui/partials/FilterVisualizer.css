@@ -1,0 +1,8 @@
+.audio-visualizer {
+  max-width: 100%;
+  margin: 0 auto 4px auto;
+}
+
+.audio-visualizer .audio-visualizer__canvas {
+  width: 100%;
+}

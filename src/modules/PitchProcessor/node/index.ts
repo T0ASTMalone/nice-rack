@@ -5,7 +5,7 @@ import { worklet } from './worklet';
 
 const blob = new Blob([worklet], { type: 'application/javascript; charset=utf-8' });
 
-export default class PitchProcessorClass extends RackNode<PitchNode> {
+export default class PitchProcessor extends RackNode<PitchNode> {
   constructor(context: AudioContext) {
     super(context, { name: 'PitchProcessor'});
   }
@@ -14,7 +14,7 @@ export default class PitchProcessorClass extends RackNode<PitchNode> {
     const url = URL.createObjectURL(blob);
 
     // const processorUrl = "PitchProcessor.js";
-    const response = await window.fetch("/pitch-processor/wasm_audio_bg.wasm");
+    const response = await window.fetch("/worklets/pitch-processor/wasm_audio_bg.wasm");
     const wasmBytes = await response.arrayBuffer();
     const numAudioSamplesPerAnalysis = 1024;
 

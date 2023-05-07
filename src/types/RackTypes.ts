@@ -378,8 +378,9 @@ class RackDestinationNode extends RackNode<AudioDestinationNode> {
 }
 
 export type RackModuleUIProps<T extends RackAudioNode> = { 
-  context: AudioContext,
-  node: RackNode<T>
+  context: AudioContext;
+  node: RackNode<T>;
+  children?: React.ReactNode;
 };
 
 export type RackModuleUI<T extends RackAudioNode> = React.FunctionComponentElement<

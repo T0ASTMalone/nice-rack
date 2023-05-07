@@ -30,7 +30,7 @@ export function Value({ node }: { node: RackNode<any> }) {
   return <span>{val}</span>
 }
 
-function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
+function Module<T extends RackAudioNode>({ node, children }: RackModuleUIProps<T>) {
   const { 
     id, 
     started,
@@ -100,7 +100,7 @@ function Module<T extends RackAudioNode>({ node }: RackModuleUIProps<T>) {
               outputs={outputs?.main}
             /> 
           </div>
-
+          {children}
           <div className="module__params">
             {params && params.length > 0 && <h4>Parameters</h4>}
             {params.map(([name, param], i) => (

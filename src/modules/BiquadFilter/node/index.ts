@@ -9,7 +9,7 @@ export default class BiquadFilter extends RackNode<BiquadFilterNode> {
           values: ['lowpass', 'highpass', 'bandpass', 'lowshelf', 'highshelf', 'peaking', 'notch', 'allpass']
         },
         Q: { min: 0, max: 1 },
-        gain: { min: 0, max: 12 }
+        gain: { min: -12, max: 12 }
       }
     });
   }

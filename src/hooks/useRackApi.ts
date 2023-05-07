@@ -4,6 +4,14 @@ import { Actions } from "../types/RackContextTypes";
 import { RackAudioNode, RackNode } from "../types/RackTypes";
 import { useParams } from './ModuleHooks';
 
+const a = 60; // adjust as needed
+const b = 0.4; // adjust as needed
+
+// Calculate the scaled x-value using the logarithmic function
+function scaleValue(x: number) {
+  return a * Math.log(b * x + 1);
+}
+
 export default function useRackApi<T extends RackAudioNode>(node: RackNode<T>) {
   const id = useId();
   const { values, setValues, params } = useParams(node.params);
