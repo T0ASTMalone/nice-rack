@@ -3,6 +3,8 @@
   height: 300px;
   border: 1px solid white;
   margin: 0 8px 8px 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .module:hover {
@@ -32,18 +34,18 @@
 }
 
 .module__io-name {
-  margin: 0 0 8px 0;
+  margin: 0;
 }
 
 .module__controls {
   position: relative;
   width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 4px;
 }
 
 .module__remove-btn {
-  position: absolute;
-  right: 0;
-  z-index: 1;
   margin-right: 8px;
   margin-top: 8px;
   padding: 0px;
@@ -51,4 +53,8 @@
   display: flex;
   justify-items: center;
   justify-content: center;
+}
+
+.module__params {
+  width: 80%;
 }

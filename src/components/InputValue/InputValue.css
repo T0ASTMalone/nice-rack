@@ -1,8 +1,3 @@
-.input-value__container {
-  max-width: 100%;
-  margin-left: 12px;
-}
-
 .input-value__input {
   max-width: 100px;
   display: none;
@@ -12,6 +7,8 @@
   margin: 0;
   max-width: 100px;
   display: none;
+  overflow: hidden;
+  text-overflow: ellipsis; 
 }
 
 .input-value__input.focused {

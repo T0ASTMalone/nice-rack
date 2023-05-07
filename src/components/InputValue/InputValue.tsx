@@ -19,17 +19,16 @@ function InputValue({ value, step, min, max, onChange }: InputValueProps) {
     setInputValue(value);
   }, [value])
 
+  useEffect(() => {
+    inputRef?.current?.focus();
+  }, [focused]);
+
   const handleClickValue = () => {
     setFocused(true);
-    // TODO: see if there's a better way
-    setTimeout(() => {
-      inputRef?.current?.focus();
-    }, 10);
   }
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.value) {
-      console.log('[InputValue] no value');
       setInputValue('');
       return;
     }
@@ -42,20 +41,24 @@ function InputValue({ value, step, min, max, onChange }: InputValueProps) {
   }
 
   const onKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      console.log('[InputValue] enter pressed');
-      if (isNaN(parseFloat(inputValue))) {
-        onChange(parseFloat(value));
-        setInputValue(value);
-      } else {
-        onChange(parseFloat(inputValue));
-      }
+    if (e.key === 'Escape') {
       setFocused(false);
+      setInputValue(value);
+      return;
     }
-  }
 
-  console.log('[InputValue] min: ', min)
-  console.log('[InputValue] max: ', max)
+    if (e.key !== 'Enter') {
+      return;
+    }
+
+    if (isNaN(parseFloat(inputValue))) {
+      onChange(parseFloat(value));
+      setInputValue(value);
+    } else {
+      onChange(parseFloat(inputValue));
+    }
+    setFocused(false);
+  }
 
   return (
     <div 
@@ -80,7 +83,7 @@ function InputValue({ value, step, min, max, onChange }: InputValueProps) {
         onChange={onInputChange}
       /> 
       <p className={`input-value__value ${focused ? '' : 'focused'}`}>
-        {inputValue}
+        {parseFloat(inputValue)?.toFixed(2)}
       </p>
     </div>
   )

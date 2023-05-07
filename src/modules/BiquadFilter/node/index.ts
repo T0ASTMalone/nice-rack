@@ -6,7 +6,7 @@ export default class BiquadFilter extends RackNode<BiquadFilterNode> {
       name: 'BiquadFilter',
       paramOptions: {
         'type': {
-          values: ['lowpass', 'highpass', 'bandpass', 'lowshelf', 'highshelf', 'peaking', 'notch', 'allpass']
+          values: ['allpass', 'lowpass', 'highpass', 'bandpass', 'lowshelf', 'highshelf', 'peaking', 'notch']
         },
         Q: { min: 0, max: 1 },
         gain: { min: -12, max: 12 }

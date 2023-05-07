@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Play, Stop, X } from 'phosphor-react';
+import { Play, Stop, X, Activity } from 'phosphor-react';
 import { motion } from 'framer-motion';
 
 import { RackNode, RackModuleUIProps, RackAudioNode } from '../../types/RackTypes';
@@ -31,6 +31,7 @@ export function Value({ node }: { node: RackNode<any> }) {
 }
 
 function Module<T extends RackAudioNode>({ node, children }: RackModuleUIProps<T>) {
+  const [visualizer, setVisualizer] = useState<boolean>(false);
   const { 
     id, 
     started,
@@ -43,18 +44,46 @@ function Module<T extends RackAudioNode>({ node, children }: RackModuleUIProps<T
     handleParamClick, 
     handleAddMainOutput, 
   } = useRackApi(node);
+
   const removeModule = useRemoveModule();
+
+  const handleToggleVisualizer = () => {
+    setVisualizer((state: boolean) => !state);
+  };
 
   return (
     <motion.div initial="rest" whileHover="hover" className="module">
       <div className="module__controls">
-        <motion.button
+        <button
           onClick={() => removeModule(node.id)}
-          className="module__remove-btn"
-          variants={fadeIn}
+          className="module__io-button"
+          // variants={fadeIn}
         >
           <X width={20} height={20}/>
-        </motion.button>
+        </button>
+        {node.analyzer && (
+          <button 
+            className={`module__io-button ${visualizer ? 'active' : ''}`}
+            onClick={handleToggleVisualizer}
+          >
+            <Activity
+              color={visualizer ? "#646cff" : "white"}
+              size={20} 
+            />
+          </button>
+        )}
+        {node.name !== 'Destination' && (
+          <button
+            className="module__io-button"
+            onClick={handleStartNode}
+          >
+            {started ? (
+              <Stop size={20} />
+            ) : (
+              <Play size={20} />
+            )}
+          </button>
+        )} 
       </div>
       <OverlayScrollbarsComponent 
         options={{ scrollbars: { autoHide: 'scroll' } }} 
@@ -62,23 +91,9 @@ function Module<T extends RackAudioNode>({ node, children }: RackModuleUIProps<T
         defer
       >
         <div className="module__scroll-container">
-          {node.analyzer && <ModuleVisualizer analyzer={node.analyzer}/>}
+          {node.analyzer && <ModuleVisualizer analyzer={node.analyzer} visible={visualizer} />}
           <Value node={node} />
           <h3 className="module__io-name">{node.name}</h3>
-
-          {node.name !== 'Destination' && (
-            <button 
-              className="module__io-button"
-              onClick={handleStartNode}
-            >
-              {started ? ( 
-                <Stop size={20} />
-              ) : (
-                <Play size={20} />
-              )}
-            </button>
-          )} 
-
           <div className="module__io">
             {/* Main in */}
             <ModuleIO
@@ -102,7 +117,6 @@ function Module<T extends RackAudioNode>({ node, children }: RackModuleUIProps<T
           </div>
           {children}
           <div className="module__params">
-            {params && params.length > 0 && <h4>Parameters</h4>}
             {params.map(([name, param], i) => (
               <ModuleParam
                 key={`${id}-${param}-${i}`}
