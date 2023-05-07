@@ -71,14 +71,16 @@ export default function ModuleParam<T extends RackAudioNode>({
       )}
       {typeof param !== 'string' && (
         <div className="param-controls">
-          <Knob
-            max={max === Constants.NODE_MAX_VALUE ? Constants.MAX_VALUE : max}
-            min={min === Constants.NODE_MIN_VALUE ? Constants.MIN_VALUE : min}
-            value={value ?? 0}
-            step={step2}
-            skin={skins.s14}
-            onChange={handleKnobChange}
-          />
+          <div className="param-knob">
+            <Knob
+              max={max === Constants.NODE_MAX_VALUE ? Constants.MAX_VALUE : max}
+              min={min === Constants.NODE_MIN_VALUE ? Constants.MIN_VALUE : min}
+              value={value ?? 0}
+              step={step2}
+              skin={skins.s14}
+              onChange={handleKnobChange}
+            />
+          </div>
           <div className="param-connection">
             {name.substring(0, 4)}
             <div className={`connection ${(input?.length ?? 0) > 0 ? 'connected' : ''}`} />

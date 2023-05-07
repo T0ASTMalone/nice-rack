@@ -4,6 +4,10 @@
   align-items: flex-end;
 }
 
+.param-controls select {
+  margin: auto 0;
+}
+
 .param-connection {
   display: flex;
   flex-direction: column;
@@ -27,4 +31,8 @@
 .param-io {
   margin-top: 14px;
   margin-bottom: auto;
+}
+
+.param-knob {
+  min-width: 50px;
 }
