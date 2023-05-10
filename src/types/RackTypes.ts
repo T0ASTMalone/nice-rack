@@ -86,7 +86,7 @@ class RackNode<T extends RackAudioNode> {
 
   _node?: T;
   
-  protected params?: Map<string, AudioParam> = new Map();
+  params?: Map<string, AudioParam> = new Map();
   // not being used yet
   onValueUpdateCallBacks?: ((val: any) => void)[]
 

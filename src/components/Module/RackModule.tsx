@@ -32,6 +32,7 @@ export default function RackModule<T extends RackAudioNode>({ node, context }: R
   }, [node, modNames]);
 
   if (Comp) {
+    // @ts-ignore
     return <Comp node={node} context={context} />
   }
 

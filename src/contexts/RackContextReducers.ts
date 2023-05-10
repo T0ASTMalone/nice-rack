@@ -10,20 +10,19 @@ export const removeModule = (state: RackState, moduleId: string): RackState => {
 
   let newState = state;
 
-  console.log('[removeModule] removing module inputs')
+  // console.log('[removeModule] removing module inputs')
   for (let i = 0; i < inputs.length; i++) {
-    let [key, value] = inputs[i];
+    let [_,value] = inputs[i];
     for (let j = 0; j < value.length; j++) {
-      console.log('[removeModule] removing module input', value[j].node.id, value[j].connectionId, value[j].paramName)
       newState = { ...removeInput(moduleId, newState, value[j].connectionId, value[j].paramName) };
     }
   }
 
-  console.log('[removeModule] removing module outputs')
+  // console.log('[removeModule] removing module outputs')
   for (let i = 0; i < outputs.length; i++) {
-    let [key, value] = outputs[i];
+    let [_, value] = outputs[i];
     for (let j = 0; j < value.length; j++) {
-      console.log('[removeModule] removing module outputs', moduleId, value[j].connectionId, 'main')
+      // console.log('[removeModule] removing module outputs', moduleId, value[j].connectionId, 'main')
       newState = { ...removeOutput(moduleId, newState, value[j].connectionId) };
     }
   }
@@ -38,7 +37,7 @@ export const createOutput = (
   state: RackState,
   param?: string,
 ): RackState => {
-  console.log('[createOutput] running');
+  // console.log('[createOutput] running');
   // find node
   const node = (state.destination && state.destination.id === id)
     ? state.destination 
@@ -46,24 +45,24 @@ export const createOutput = (
   
   // if !node return
   if (!node) { 
-    console.log('[createOutput] no node');
+    // console.log('[createOutput] no node');
     return state;
   }
 
   let input;
 
   if (state.input) {
-    console.log('[createOutput] state has input');
+    // console.log('[createOutput] state has input');
     input = state.modules.find((n) => n.inputNodes.some((i) => i.connectionId === state.input)) 
 
     if (!input && state.destination && state.destination.inputNodes.some((n) => n.connectionId === state.input)) {
-      console.log('[createOutput] input is destination');
+      // console.log('[createOutput] input is destination');
       input = state.destination 
     }
   } 
 
   if (input && input.id === node.id) {
-    console.log('[createOutput] is self');
+    // console.log('[createOutput] is self');
     return state;
   }
 
@@ -80,7 +79,7 @@ export const createOutput = (
   );
 
   if (!inputNode || !input) {
-    console.log('[createOutput] setting output. Not creating connection');
+    // console.log('[createOutput] setting output. Not creating connection');
     return { ...state, output: ioNode.connectionId };
   }
 
@@ -88,7 +87,7 @@ export const createOutput = (
   inputNode.param = ioNode.param;
   inputNode.paramName = ioNode.paramName;
 
-  console.log('[createOutput] updating state');
+  // console.log('[createOutput] updating state');
   return { 
     ...state,
     // clear inputs
@@ -120,7 +119,7 @@ export const createInput = (
   state: RackState,
   param?: string,
 ): RackState => {
-  console.log('[createInput] running');
+  // console.log('[createInput] running');
   // find node
   const node = (state.destination && state.destination.id === id)
     ? state.destination 
@@ -128,24 +127,24 @@ export const createInput = (
   
   // if !node return
   if (!node) { 
-    console.log('[createInput] no node');
+    // console.log('[createInput] no node');
     return state;
   }
 
   let output;
 
   if (state.output) {
-    console.log('[createInput] state has input');
+    // console.log('[createInput] state has input');
     output = state.modules.find((n) => n.outPutNodes.some((i) => i.connectionId === state.output));
 
     if (!output && state?.destination?.outPutNodes.some((n) => n.connectionId === state.output)) {
-      console.log('[createInput] input is destination');
+      // console.log('[createInput] input is destination');
       output = state.destination
     }
   }
 
   if (output && output.id === node.id) {
-    console.log('[createInput] is self');
+    // console.log('[createInput] is self');
     return state;
   }
 
@@ -161,7 +160,7 @@ export const createInput = (
   
 
   if (!outputNode || !output) {
-    console.log('[createInput] setting input. Not creating connection');
+    // console.log('[createInput] setting input. Not creating connection');
     return { ...state, input: ioNode.connectionId };
   }
 
@@ -176,7 +175,7 @@ export const createInput = (
     output.outputNode.connect(node.node);
   }
 
-  console.log('[createInput] updating state');
+  // console.log('[createInput] updating state');
   return { 
     ...state,
     // clear staged input outputs
@@ -212,15 +211,15 @@ export const removeOutput = (
     // : state.modules.find((node) => (node.id === id && node.outPutNodes.some((n) => n.connectionId === connectionId)));
 
   if (!node) {
-    console.log('[RackReducers] node not found');
+    // console.log('[RackReducers] node not found');
     return state;
   }
   
-  let output: IONode<any> = state.patches?.[id]?.outputs?.main
+  let output = state.patches?.[id]?.outputs?.main
     ?.find((o) => o.connectionId === connectionId);
   
   if (!output?.node) {
-    console.log('[RackReducers] output node not found');
+    // console.log('[RackReducers] output node not found');
     return state;
   }
   
@@ -272,7 +271,7 @@ export const removeInput = (
     : state.modules.find((node) => node.id === id);
 
   if (!node) {
-    console.log('[RackReducers] node not found')
+    // console.log('[RackReducers] node not found')
     return state;
   }
 
@@ -280,7 +279,7 @@ export const removeInput = (
     ?.find((o) => o.connectionId === connectionId);
 
   if (!input?.node) {
-    console.log('[RackReducers] input node not found')
+    // console.log('[RackReducers] input node not found')
     return state;
   }
 
@@ -290,7 +289,7 @@ export const removeInput = (
   const nodeInputs = state.patches?.[node.id].inputs?.[param || 'main']
     ?.filter((p) => p.connectionId !== connectionId) ?? [];
 
-  console.log('[RackReducers] disconnecting')
+  // console.log('[RackReducers] disconnecting')
   input.node.outputNode.disconnect();
 
   input.node.removeOutput(connectionId);

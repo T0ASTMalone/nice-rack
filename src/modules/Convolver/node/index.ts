@@ -2,7 +2,7 @@ import { RackAudioParam, RackNode } from "../../../types/RackTypes";
 
 // modules.json node name
 export default class Convolver extends RackNode<ConvolverNode> {
-  timer: number | undefined;
+  timer?: NodeJS.Timer;
   constructor(context: AudioContext) {
     super(context, { name: 'Convolver' });
   }

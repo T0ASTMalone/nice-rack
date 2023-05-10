@@ -21,15 +21,15 @@ export enum IO {
 
 export type TPatch = {
   patchId: string,
-  input: IONode,
-  output: IONode,
+  input: IONode<any>,
+  output: IONode<any>,
 };
 
 export interface IPatch {
   // node id
   [key: string] : { 
-    inputs: { [key: string] : IONode[] }, 
-    outputs: { [key: string]: IONode[] },
+    inputs: { [key: string] : IONode<any>[] }, 
+    outputs: { [key: string]: IONode<any>[] },
   };
 }
 
