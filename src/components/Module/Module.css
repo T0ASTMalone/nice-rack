@@ -41,7 +41,6 @@
 
 .module__header {
   position: relative;
-  width: 100%;
   padding: 4px;
 }
 
@@ -52,7 +51,7 @@
 
 .module__controls {
   position: absolute;
-  width: 100%;
+  width: calc(100% - 8px);
   display: flex;
   justify-content: space-between;
   z-index: 1;

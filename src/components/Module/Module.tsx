@@ -35,6 +35,7 @@ export function Value({ node }: { node: RackNode<any> }) {
   return <span>{val}</span>
 }
 
+
 function Module<T extends RackAudioNode>({ node, children }: RackModuleUIProps<T>) {
   const [visualizer, setVisualizer] = useState<boolean>(false);
   const isDestination = useMemo(() => node.name === 'Destination', [node.name]);
@@ -65,7 +66,6 @@ function Module<T extends RackAudioNode>({ node, children }: RackModuleUIProps<T
             <button
               onClick={() => removeModule(node.id)}
               className="module__io-button"
-              variants={fadeIn}
             >
               <X width={20} height={20}/>
             </button>
@@ -95,7 +95,7 @@ function Module<T extends RackAudioNode>({ node, children }: RackModuleUIProps<T
           )} 
         </motion.div>
         <motion.h3 
-          variants={node.name !== 'Destination' ? fadeOut : null}
+          variants={node.name !== 'Destination' ? fadeOut : {}}
           className="module__io-name"
         >
           {node.name}

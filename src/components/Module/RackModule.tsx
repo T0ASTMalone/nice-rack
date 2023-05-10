@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { RackModuleUIProps, RackAudioNode } from '../../types/RackTypes';
 import Module from './Module';
 
-import * as JSONModules from '../../modules';
+import * as Modules from '../../modules';
 import mods from '../../assets/modules.json';
 
 import './Module.css';
@@ -11,7 +11,7 @@ import './Module.css';
 export default function RackModule<T extends RackAudioNode>({ node, context }: RackModuleUIProps<T>) {
   const modNames = useMemo(() => mods.map((mod) => mod?.name), []);
 
-  const Comp = useMemo<[boolean, React.ReactNode | undefined]>(() => {
+  const Comp = useMemo(() => {
     if (!modNames.includes(node.name)) {
       return;
     }
@@ -22,7 +22,7 @@ export default function RackModule<T extends RackAudioNode>({ node, context }: R
       return;
     }
 
-    const newModule: any = JSONModules[node.name as keyof typeof JSONModules];
+    const newModule = Modules[node.name as keyof typeof Modules];
 
     if (!newModule) {
       return;
@@ -32,10 +32,8 @@ export default function RackModule<T extends RackAudioNode>({ node, context }: R
   }, [node, modNames]);
 
   if (Comp) {
-    console.log('[RackModule] Comp: ', node.name);
     return <Comp node={node} context={context} />
   }
 
-  console.log('[RackModule] Module: ', node.name);
   return <Module node={node} context={context} />
 }

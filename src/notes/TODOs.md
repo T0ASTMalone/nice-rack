@@ -1,6 +1,13 @@
 TODOS t0ast-rack
 
 - [x] implement remove module from rack
+- [ ] update home page
+- [ ] collapse io / add orientation prop
+- [ ] fix space below canvas
+- [ ] style select inputs 
+- [ ] add frequency chart / select to frequency params
+- [ ] update styles for knobs to match our styles 
+- [ ] add animation to param io connection
 - [ ] add readme
 - [ ] add logger
 - [ ] refactor useRackAPI into seperate hooks for each dispatch call / state 

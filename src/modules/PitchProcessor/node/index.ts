@@ -7,7 +7,7 @@ const blob = new Blob([worklet], { type: 'application/javascript; charset=utf-8'
 
 export default class PitchProcessor extends RackNode<PitchNode> {
   constructor(context: AudioContext) {
-    super(context, { name: 'PitchProcessor'});
+    super(context, { name: 'PitchProcessor' });
   }
 
   async init(opt?: any) {
