@@ -4,18 +4,10 @@ import { Actions } from "../types/RackContextTypes";
 import { RackAudioNode, RackNode } from "../types/RackTypes";
 import { useParams } from './ModuleHooks';
 
-const a = 60; // adjust as needed
-const b = 0.4; // adjust as needed
-
-// Calculate the scaled x-value using the logarithmic function
-function scaleValue(x: number) {
-  return a * Math.log(b * x + 1);
-}
-
 export default function useRackApi<T extends RackAudioNode>(node: RackNode<T>) {
   const id = useId();
   const { values, setValues, params } = useParams(node.params);
-  const { patches, input, output } = useRackState();
+  const { patches } = useRackState();
   const dispatch = useRackDispatch();
   const [started, setStarted] = useState(node?.started);
 
@@ -57,9 +49,7 @@ export default function useRackApi<T extends RackAudioNode>(node: RackNode<T>) {
   const handleAddMainInput = (connectionId: string, param?: string) => { 
     const p = patches[node?.id]?.inputs?.main;
     const existing = p?.find(c => c.connectionId === connectionId);
-    console.log(`[handleAddMainInput] ${
-      existing ? 'removing main input' : 'adding main input'
-    } for ${node.id} ${param}`);
+
     dispatch({ 
       actionType: (!existing ? Actions.AddInput : Actions.RemoveInput),
       message: { inputId: node.id, connectionId, param },
@@ -76,10 +66,9 @@ export default function useRackApi<T extends RackAudioNode>(node: RackNode<T>) {
     */
   const handleAddMainOutput = (connectionId: string, param?: string) => {
     const p = patches[node?.id]?.outputs?.main;
+
     const existing = p?.find(c => c.connectionId === connectionId);
-    console.log(`[handleAddMainOutput] ${
-      existing ? 'removing main output' : 'adding main output'
-    } for ${node.id} ${param}`);
+
     dispatch({ 
       actionType: (!existing ? Actions.AddOutput : Actions.RemoveOutput),
       message: { outputId: node.id, param, connectionId }
@@ -102,9 +91,6 @@ export default function useRackApi<T extends RackAudioNode>(node: RackNode<T>) {
   const handleParamClick = (connectionId: string, param?: string) => {
     const p = patches[node?.id]?.inputs?.[param || 'main'];
     const existing = p?.find(c => c.connectionId === connectionId);
-    console.log(`[handleParamClick] ${
-      existing ? 'removing param input' : 'adding param input'
-    } for ${node.id} ${param}`);
     dispatch({ 
       actionType: (!existing ? Actions.AddInput : Actions.RemoveInput),
       message: { inputId: node.id, param, connectionId }
@@ -131,6 +117,94 @@ export default function useRackApi<T extends RackAudioNode>(node: RackNode<T>) {
     handleAddMainOutput,
     handleParamClick,
     handleStartNode,
+  }
+}
+
+export function useNodeIO<T extends RackAudioNode>(node: RackNode<T>) {
+  const { patches } = useRackState();
+
+  return useMemo(() => {
+    return [patches?.[node.id]?.inputs, patches?.[node.id]?.outputs]
+  }, [patches?.[node?.id]?.inputs, patches?.[node.id]?.outputs]);
+}
+
+export function useUpdateParams<T extends RackAudioNode>(
+  node: RackNode<T>
+): [[string, AudioParam][], (name: string, val: string | number) => void] {
+  const { values, setValues, params } = useParams(node.params);
+
+  const handleUpdate = (name: string , val: number | string) => {
+    if (!values) return;
+
+    const param = values[name];
+
+    if (name === "type") {
+      node.type = val;
+    } else if (param && typeof val === 'number'){
+      param.value = val;
+    }
+
+    setValues((state) => ({...state, [name]: param}));
+  }
+
+  return [params, handleUpdate];
+}
+
+export function useStartNode<T extends RackAudioNode>(node: RackNode<T>): [boolean, () => void] {
+  const [started, setStarted] = useState(node?.started);
+
+  const handleStartNode = () => {
+    const nodeStarted = node.toggleStarted();
+    setStarted(nodeStarted);
+  }
+
+  return [started, handleStartNode];
+}
+
+export function useParamClick<T extends RackAudioNode>(node: RackNode<T>) {
+  const { patches } = useRackState();
+  const dispatch = useRackDispatch();
+
+  return (connectionId: string, param?: string) => {
+
+    const p = patches[node?.id]?.inputs?.[param || 'main'];
+    const existing = p?.find(c => c.connectionId === connectionId);
+
+    dispatch({ 
+      actionType: (!existing ? Actions.AddInput : Actions.RemoveInput),
+      message: { inputId: node.id, param, connectionId }
+    });
+  }
+}
+
+export function useMainOutputClick<T extends RackAudioNode>(node: RackNode<T>) {
+  const { patches } = useRackState();
+  const dispatch = useRackDispatch();
+  return (connectionId: string, param?: string) => {
+    const p = patches[node?.id]?.outputs?.main;
+
+    const existing = p?.find(c => c.connectionId === connectionId);
+
+    dispatch({ 
+      actionType: (!existing ? Actions.AddOutput : Actions.RemoveOutput),
+      message: { outputId: node.id, param, connectionId }
+    });
+  }
+}
+
+export function useMainInputClick<T extends RackAudioNode>(node: RackNode<T>) {
+  const { patches } = useRackState();
+  const dispatch = useRackDispatch();
+
+  return (connectionId: string, param?: string) => { 
+    const p = patches[node?.id]?.inputs?.main;
+
+    const existing = p?.find(c => c.connectionId === connectionId);
+
+    dispatch({ 
+      actionType: (!existing ? Actions.AddInput : Actions.RemoveInput),
+      message: { inputId: node.id, connectionId, param },
+    });
   }
 }
 

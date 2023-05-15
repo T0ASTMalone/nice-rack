@@ -1,10 +1,11 @@
 import { useId } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useRackDispatch, useRackState } from '../../contexts/RackContext';
 import { Actions } from '../../types/RackContextTypes';
 import { Module, RackModule } from '../Module';
-
+import { Logo } from '../Logo';
 import './Rack.css';
+
 
 const itemMain = {
   hidden: { y: 200 },
@@ -34,6 +35,7 @@ export default function Rack() {
           className="rack__before-init"
           key="init-btn-container"
         >
+          <Logo />
           <motion.button 
             key="init-btn"
             initial="hidden"

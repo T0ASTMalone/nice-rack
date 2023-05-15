@@ -9,7 +9,7 @@ import { ModuleVisualizer } from '../ModuleVisualizer';
 import { ModuleIO } from '../ModuleIO';
 import { ModuleParam } from '../ModuleParam';
 
-import useRackApi, { useRemoveModule } from '../../hooks/useRackApi';
+import useRackApi, { useMainInputClick, useMainOutputClick, useNodeIO, useParamClick, useRemoveModule, useStartNode, useUpdateParams } from '../../hooks/useRackApi';
 
 import './Module.css';
 
@@ -39,19 +39,26 @@ export function Value({ node }: { node: RackNode<any> }) {
 function Module<T extends RackAudioNode>({ node, children }: RackModuleUIProps<T>) {
   const [visualizer, setVisualizer] = useState<boolean>(false);
   const isDestination = useMemo(() => node.name === 'Destination', [node.name]);
+
   const { 
     id, 
-    started,
-    inputs,
-    outputs,
-    params,
-    handleUpdateParam,
-    handleAddMainInput,
-    handleStartNode, 
-    handleParamClick, 
-    handleAddMainOutput, 
+    // started,
+    // inputs,
+    // outputs,
+    // params,
+    // handleUpdateParam,
+    // handleAddMainInput,
+    // handleStartNode, 
+    // handleParamClick, 
+    // handleAddMainOutput, 
   } = useRackApi(node);
 
+  const [inputs, outputs] = useNodeIO(node);
+  const [started, startNode] = useStartNode(node);
+  const [params, updateParams] = useUpdateParams(node);
+  const handleAddMainInput = useMainInputClick(node);
+  const handleAddMainOutput = useMainOutputClick(node);
+  const handleParamClick = useParamClick(node);
   const removeModule = useRemoveModule();
 
   const handleToggleVisualizer = () => {
@@ -84,7 +91,7 @@ function Module<T extends RackAudioNode>({ node, children }: RackModuleUIProps<T
           {node.name !== 'Destination' && (
             <button
               className="module__io-button"
-              onClick={handleStartNode}
+              onClick={startNode}
             >
               {started ? (
                 <Stop size={20} />
@@ -137,7 +144,7 @@ function Module<T extends RackAudioNode>({ node, children }: RackModuleUIProps<T
               {params.map(([name, param], i) => (
                 <ModuleParam
                   key={`${id}-${param}-${i}`}
-                  onChange={handleUpdateParam}
+                  onChange={updateParams}
                   name={name}
                   param={param}
                   value={param?.value}
