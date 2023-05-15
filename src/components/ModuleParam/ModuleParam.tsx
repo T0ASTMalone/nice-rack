@@ -7,8 +7,8 @@ import { ModuleIO } from "../ModuleIO";
 import Constants from "../../constants";
 // @ts-ignore
 import { Knob } from 'react-rotary-knob';
-// @ts-ignore
-import * as skins from 'react-rotary-knob-skin-pack';
+
+import skin from '../../assets/skins/knob1';
 
 import './ModuleParma.css';
 
@@ -77,7 +77,7 @@ export default function ModuleParam<T extends RackAudioNode>({
               min={min === Constants.NODE_MIN_VALUE ? Constants.MIN_VALUE : min}
               value={value ?? 0}
               step={step2}
-              skin={skins.s14}
+              skin={skin}
               onChange={handleKnobChange}
             />
           </div>
