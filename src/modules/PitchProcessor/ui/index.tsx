@@ -1,14 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from 'framer-motion';
 import { Activity, Play, Stop, X } from 'phosphor-react';
+
 import type { RackModuleUI, RackModuleUIProps } from "../../../types/RackTypes";
+
 import { PitchReadout } from './components/PitchReadout';
 import PitchNode from "../node/PitchNode";
-import { throttle } from '../lib/utils';
-import useRackApi, { useRemoveModule } from "../../../hooks/useRackApi";
 import { ModuleIO } from "../../../components/ModuleIO";
 import { ModuleVisualizer } from "../../../components/ModuleVisualizer";
 import { Value } from "../../../components/Module/Module";
+
+import { 
+  useMainInputClick, 
+  useMainOutputClick, 
+  useNodeIO, 
+  useRemoveModule, 
+  useStartNode,
+} from "../../../hooks/useRackApi";
+
+import { throttle } from '../lib/utils';
 
 const fadeIn = {
   rest: { opacity: 0 },
@@ -25,16 +35,12 @@ export default function PitchProcessor({
 }: RackModuleUIProps<PitchNode>): RackModuleUI<PitchNode> {
   const [visualizer, setVisualizer] = useState<boolean>(false);
   const [latestPitch, setLatestPitch] = useState(0);
+  const displayName = useMemo(() => node.name.split(/(?=[A-Z])/).join(' '), [node.name]);
 
-  const { 
-    inputs,
-    outputs, 
-    started,
-    handleStartNode,
-    handleAddMainOutput,
-    handleAddMainInput 
-  } = useRackApi(node);
-  
+  const [inputs, outputs] = useNodeIO(node);
+  const [started, startNode] = useStartNode(node);
+  const handleAddMainInput = useMainInputClick(node);
+  const handleAddMainOutput = useMainOutputClick(node);
   const removeModule = useRemoveModule();
 
   useEffect(() => {
@@ -75,7 +81,7 @@ export default function PitchProcessor({
           {node.name !== 'Destination' && (
             <button
               className="module__io-button"
-              onClick={handleStartNode}
+              onClick={startNode}
             >
               {started ? (
                 <Stop size={20} />
@@ -89,7 +95,7 @@ export default function PitchProcessor({
           variants={node.name !== 'Destination' ? fadeOut : {}}
           className="module__io-name"
         >
-          {node.name}
+          {displayName}
         </motion.h3>
       </div>
       <div style={{ marginTop: '44px' }}>

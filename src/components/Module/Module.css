@@ -47,6 +47,10 @@
 .module__io-name {
   margin: 0;
   position: absolute;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: calc(100% - 8px);
+  overflow: hidden;
 }
 
 .module__controls {
@@ -69,7 +73,7 @@
 
 .module__params {
   border: 1px solid white;
-  padding: 4px;
+  padding: 8px;
   margin-top: 4px;
   margin-left: auto;
   margin-right: auto;

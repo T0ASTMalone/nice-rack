@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { motion } from 'framer-motion';
 import { useMinMax, useStep } from "../../hooks/ModuleHooks";
 import { IONode, ParamOptions, RackAudioNode } from "../../types/RackTypes";
 import InputValue from "../InputValue/InputValue";
@@ -52,12 +53,19 @@ export default function ModuleParam<T extends RackAudioNode>({
   const handleKnobChange = (val: number) => {
     onChange?.(name, val);
   }
-    
+  if (typeof value === 'number') {
+    console.log(new Intl.NumberFormat('en', {
+      notation: 'compact'
+      // style: 'unit', unit: 'frequency-hertz', unitDisplay: 'short' 
+    }).format(value))
+  }
+
   return (
-    <div style={{margin: "4px 0"}}>
+    <div>
       {typeof param === 'string' && (
         <div className="param-controls">
           <select 
+            className="param-select"
             onChange={handleTypeChange}
             value={type}
           >
@@ -83,7 +91,12 @@ export default function ModuleParam<T extends RackAudioNode>({
           </div>
           <div className="param-connection">
             {name.substring(0, 4)}
-            <div className={`connection ${(input?.length ?? 0) > 0 ? 'connected' : ''}`} />
+            <motion.div 
+              initial={{ width: '0%' }}
+              animate={{ width: '100%' }}
+              transition={{ duration: 0.5 }}
+              className={`connection ${(input?.length ?? 0) > 0 ? 'connected' : ''}`} 
+            />
             <InputValue
               step={step ?? 0.01}
               min={min ?? 0}

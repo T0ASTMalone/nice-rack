@@ -55,6 +55,19 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+/* knob ring */
+.injected-svg g#knob > #Oval-5 > use {
+  stroke: #ffffff;
+}
+
+.injected-svg g#knob > #Rectangle-Copy-2 > use {
+  fill: #ffffff;
+}
+
+
+.injected-svg:hover g#knob > #Oval-5 > use {
+  stroke: #646cff;
+}
 
 @media (prefers-color-scheme: light) {
   :root {

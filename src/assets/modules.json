@@ -37,7 +37,7 @@
   },
   {
     "name": "DynamicCompressor",
-    "location": "src/modules/DynamicCompressor",
+    "location": "/modules/DynamicCompressor",
     "ui": "DynamicCompressor",
     "node": "DynamicCompressor"
   },

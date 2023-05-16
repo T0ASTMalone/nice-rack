@@ -1,15 +1,23 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { Play, Stop, X, Activity } from 'phosphor-react';
 import { motion } from 'framer-motion';
 
-import { RackNode, RackModuleUIProps, RackAudioNode } from '../../types/RackTypes';
+import type { RackNode, RackModuleUIProps, RackAudioNode } from '../../types/RackTypes';
 
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { ModuleVisualizer } from '../ModuleVisualizer';
 import { ModuleIO } from '../ModuleIO';
 import { ModuleParam } from '../ModuleParam';
 
-import useRackApi, { useMainInputClick, useMainOutputClick, useNodeIO, useParamClick, useRemoveModule, useStartNode, useUpdateParams } from '../../hooks/useRackApi';
+import {
+  useMainInputClick,
+  useMainOutputClick,
+  useNodeIO,
+  useParamClick,
+  useRemoveModule,
+  useStartNode,
+  useUpdateParams
+} from '../../hooks/useRackApi';
 
 import './Module.css';
 
@@ -39,23 +47,13 @@ export function Value({ node }: { node: RackNode<any> }) {
 function Module<T extends RackAudioNode>({ node, children }: RackModuleUIProps<T>) {
   const [visualizer, setVisualizer] = useState<boolean>(false);
   const isDestination = useMemo(() => node.name === 'Destination', [node.name]);
+  const displayName = useMemo(() => node.name.split(/(?=[A-Z])/).join(' '), [node.name]);
 
-  const { 
-    id, 
-    // started,
-    // inputs,
-    // outputs,
-    // params,
-    // handleUpdateParam,
-    // handleAddMainInput,
-    // handleStartNode, 
-    // handleParamClick, 
-    // handleAddMainOutput, 
-  } = useRackApi(node);
-
+  const id = useId();
   const [inputs, outputs] = useNodeIO(node);
   const [started, startNode] = useStartNode(node);
   const [params, updateParams] = useUpdateParams(node);
+
   const handleAddMainInput = useMainInputClick(node);
   const handleAddMainOutput = useMainOutputClick(node);
   const handleParamClick = useParamClick(node);
@@ -105,7 +103,7 @@ function Module<T extends RackAudioNode>({ node, children }: RackModuleUIProps<T
           variants={node.name !== 'Destination' ? fadeOut : {}}
           className="module__io-name"
         >
-          {node.name}
+          {displayName}
         </motion.h3>
       </div>
       <OverlayScrollbarsComponent 

@@ -29,7 +29,6 @@ function ModuleList() {
 
     // TODO: use the location param to lazy load the module
     const newModule  = JSONModules[name as keyof typeof JSONModules];
-
     // TODO: show error 
     if (!newModule) { 
       return;
