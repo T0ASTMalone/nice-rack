@@ -5,6 +5,7 @@ import { Actions } from '../../types/RackContextTypes';
 import { Module, RackModule } from '../Module';
 import { Logo } from '../Logo';
 import './Rack.css';
+import { useAnalyticsEventTracker } from '../../hooks/useAnalyticsEventTracker';
 
 
 const itemMain = {
@@ -27,7 +28,7 @@ export default function Rack() {
   const id = useId()
   const { context, modules, destination } = useRackState();
   const dispatch = useRackDispatch();
-
+  const gaEventTracker = useAnalyticsEventTracker('User');
   return (
     <div className="rack">
       {!context && (
@@ -43,7 +44,10 @@ export default function Rack() {
             exit="exit"
             variants={itemMain}
             layoutId="rack"  
-            onClick={() => dispatch({actionType: Actions.Init})}
+            onClick={() => {
+              gaEventTracker('Started App', 'Rack');
+              dispatch({actionType: Actions.Init});
+            }}
           >
             Start
           </motion.button>
